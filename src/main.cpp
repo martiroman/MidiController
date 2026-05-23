@@ -1,159 +1,79 @@
 #include <Arduino.h>
-#include <Wire.h>
-#include <Arduino_GFX_Library.h>
-#include <TAMC_GT911.h>
+#include "hardware.h"
+#include "ui.h"
 #include "UsbMidi.h"
 #include "M5UnitSynth.h"
-#include <ArduinoOTA.h>
 
-// --- Instancias ---
+// App State Variables
+bool arp_activo = false;
+bool nts1_listo = false;
+bool toque_anterior = false;
+
+// Secuencer variables
+unsigned long t_ultimo_paso = 0;
+unsigned long intervalo = 250; 
+uint8_t notas[4] = {60, 63, 67, 70}; // Acorde de ejemplo
+int idx = 0;
+
+// Global objects
+Arduino_RGB_Display* gfx;
+TAMC_GT911 ts(8, 9, 4, -1, 800, 480);
 UsbMidi midi;
 M5UnitSynth synth;
-uint8_t program_current = 0;
-bool nts1_listo = false;
 
-// --- CORRECCIÓN CH422G (Control de energía de la placa) ---
-#define CH422G_I2C_ADDR 0x24  // direccion del chip
-#define CH422G_REG_MODE 0x01  // registro para configurar modo
-#define CH422G_REG_OUT  0x02  // registro para activar salidas
-
-const char* ssid = "thecooders";
-const char* password = "apuki2018";
-
-void ch422g_write(uint8_t reg, uint8_t value) {
-    Wire.beginTransmission(CH422G_I2C_ADDR);
-    Wire.write(reg);
-    Wire.write(value);
-    Wire.endTransmission();
-}
-
-// --- LCD (Pines Waveshare S3 4.3") ---
-Arduino_ESP32RGBPanel *bus = new Arduino_ESP32RGBPanel(
-    5, 3, 46, 7, 1, 2, 42, 41, 40, 39, 0, 45, 48, 47, 21,
-    14, 38, 18, 17, 10, 0, 8, 4, 8, 0, 8, 4, 8, 1, 14000000
-);
-Arduino_RGB_Display *gfx = new Arduino_RGB_Display(800, 480, bus);
-
-// --- Touch ---
-TAMC_GT911 ts(8, 9, 4, -1, 800, 480);
-
-// --- Arpegio ---
-const int BTN_X = 280, BTN_Y = 180, BTN_W = 240, BTN_H = 100;
-bool arp_activo = false;
-bool toque_anterior = false;
-uint8_t notas[] = {60, 64, 67, 72}; // Do, Mi, Sol, Do
-int idx = 0;
-unsigned long t_ultimo_paso = 0;
-const int intervalo = 125; 
-
-void debug_screen(const char* msg, uint16_t color = WHITE) {
-    static int line = 0;
-    if (line > 15) { gfx->fillScreen(BLACK); line = 0; }
-    gfx->setCursor(10, 10 + (line * 25));
-    gfx->setTextColor(color);
-    gfx->setTextSize(2);
-    gfx->println(msg);
-    line++;
-    Serial.println(msg);
-}
-
-void dibujar_boton() {
-    gfx->fillRoundRect(BTN_X, BTN_Y, BTN_W, BTN_H, 14, arp_activo ? GREEN : BLUE);
-    gfx->setTextColor(WHITE);
-    gfx->setTextSize(4);
-    gfx->setCursor(BTN_X + 65, BTN_Y + 35);
-    gfx->print(arp_activo ? "STOP" : "START");
-}
-
-// --- Callbacks MIDI ---
-void onConnected() {
-    debug_screen("NTS-1 CONECTADO!", GREEN);
-    nts1_listo = true;
-}
-
-void onDisconnected() {
-    debug_screen("NTS-1 DESCONECTADO", RED);
-    nts1_listo = false;
-}
-
-void onMidiMessage(const uint8_t (&data)[4]) {
-    // Aquí recibís MIDI desde el NTS-1 si tocaras sus teclas
-}
+Boton btnPlay = {280, 180, 240, 100, "PLAY/STOP", GREEN, BLUE, &arp_activo};
 
 void setup() {
     Serial.begin(115200);
-    
-    // 1. Inicializar I2C en los pines de la Waveshare
-    Wire.begin(8, 9); 
+    Wire.begin(8, 9);
     delay(100);
-    
-    WiFi.mode(WIFI_STA);
-    WiFi.begin(ssid, password);
 
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
-        Serial.print(".");
-    }
-    Serial.println("\nWiFi Conectada!");
+    init_wifi_ota();
     
-    // Configuración de ArduinoOTA
-    ArduinoOTA.onStart([]() { Serial.println("Inicio de OTA"); });
-    ArduinoOTA.onEnd([]() { Serial.println("\nFin de OTA"); });
-    ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-        Serial.printf("Progreso: %u%%\r", (progress / (total / 100)));
-    });
-    ArduinoOTA.onError([](ota_error_t error) {
-        Serial.printf("Error [%u]\n", error);
-    });
-    
-    ArduinoOTA.setHostname("microkorg-esp32");
-    ArduinoOTA.begin();
-    Serial.println("\nListo para recibir ccdigo por WiFi");
-    Serial.print("IP: ");
-    Serial.println(WiFi.localIP());
-    /////////////////////////////////////////////////////////////////////
+    // Encender el bus de 5V para el NTS-1
+    ch422g_write(CH422G_REG_MODE, 0x01);
+    ch422g_write(CH422G_REG_OUT, 0x1F);
+    delay(500);
 
-    // 2. ACTIVAR ENERGÍA USB (Crucial para que el NTS-1 prenda)
-    ch422g_write(CH422G_REG_MODE, 0x01); // Modo salida
-    ch422g_write(CH422G_REG_OUT, 0x1F);  // "Abrir canilla" de 5V
-    delay(500); // Esperar que el NTS-1 reaccione
-
-    // 3. Inicializar Pantalla
-    gfx->begin();
-    gfx->fillScreen(BLACK);
+    gfx = init_display();
     ts.begin();
 
-    // 4. Inicializar USB MIDI
-    midi.onMidiMessage(onMidiMessage);
-    midi.onDeviceConnected(onConnected);
-    midi.onDeviceDisconnected(onDisconnected);
+    // Inicializar MIDI
     midi.begin();
 
-    debug_screen("Starting CyM...", YELLOW);
-    dibujar_boton();
+    debug_screen(gfx, "Starting CyM...", WHITE);
+    
+    if (WiFi.status() == WL_CONNECTED) {
+        debug_screen(gfx, "WiFi Conectada!", GREEN);
+        String ipStr = "IP: " + WiFi.localIP().toString();
+        debug_screen(gfx, ipStr.c_str(), BLUE);
+    }
+    
+    // Dibujar interfaz inicial
+    btnPlay.dibujar(gfx);
 }
 
 void loop() {
     ArduinoOTA.handle();
     ts.read();
     
+    // Procesar interacciones de Touch
     if (ts.isTouched && !toque_anterior) {
-        int x = ts.points[0].x;
-        int y = ts.points[0].y;
+        int tx = ts.points[0].x;
+        int ty = ts.points[0].y;
         
-        if (x >= BTN_X && x <= BTN_X + BTN_W && y >= BTN_Y && y <= BTN_Y + BTN_H) {
-            arp_activo = !arp_activo;
+        if (btnPlay.checkToque(tx, ty)) {
             if (!arp_activo) {
-                // Pánico: Apagar nota al detener
+                // Panico: Apagar ultima nota si se frena el arp
                 synth.setNoteOff(1, notas[idx == 0 ? 3 : idx - 1], 0);
             }
-            dibujar_boton();
+            btnPlay.dibujar(gfx); // Redibuja con el nuevo color
         }
     }
     toque_anterior = ts.isTouched;
 
+    // Lógica del secuenciador / Arpegiador
     if (arp_activo && (millis() - t_ultimo_paso >= intervalo)) {
-        // El NTS-1 suele usar el Canal 1 por defecto
         synth.setNoteOff(1, notas[idx == 0 ? 3 : idx - 1], 0);
         synth.setNoteOn(1, notas[idx], 100);
         
@@ -161,5 +81,5 @@ void loop() {
         t_ultimo_paso = millis();
     }
     
-    delay(1); 
+    delay(1);
 }
