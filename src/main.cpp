@@ -4,6 +4,7 @@
 #include <TAMC_GT911.h>
 #include "UsbMidi.h"
 #include "M5UnitSynth.h"
+#include <ArduinoOTA.h>
 
 // --- Instancias ---
 UsbMidi midi;
@@ -15,6 +16,9 @@ bool nts1_listo = false;
 #define CH422G_I2C_ADDR 0x24  // direccion del chip
 #define CH422G_REG_MODE 0x01  // registro para configurar modo
 #define CH422G_REG_OUT  0x02  // registro para activar salidas
+
+const char* ssid = "thecooders";
+const char* password = "apuki2018";
 
 void ch422g_write(uint8_t reg, uint8_t value) {
     Wire.beginTransmission(CH422G_I2C_ADDR);
@@ -82,6 +86,31 @@ void setup() {
     // 1. Inicializar I2C en los pines de la Waveshare
     Wire.begin(8, 9); 
     delay(100);
+    
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(ssid, password);
+
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(500);
+        Serial.print(".");
+    }
+    Serial.println("\nWiFi Conectada!");
+    
+    // Configuración de ArduinoOTA
+    ArduinoOTA.onStart([]() { Serial.println("Inicio de OTA"); });
+    ArduinoOTA.onEnd([]() { Serial.println("\nFin de OTA"); });
+    ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
+        Serial.printf("Progreso: %u%%\r", (progress / (total / 100)));
+    });
+    ArduinoOTA.onError([](ota_error_t error) {
+        Serial.printf("Error [%u]\n", error);
+    });
+
+    ArduinoOTA.begin();
+    Serial.println("\nListo para recibir ccdigo por WiFi");
+    Serial.print("IP: ");
+    Serial.println(WiFi.localIP());
+    /////////////////////////////////////////////////////////////////////
 
     // 2. ACTIVAR ENERGÍA USB (Crucial para que el NTS-1 prenda)
     ch422g_write(CH422G_REG_MODE, 0x01); // Modo salida
@@ -104,6 +133,7 @@ void setup() {
 }
 
 void loop() {
+    ArduinoOTA.handle();
     ts.read();
     
     if (ts.isTouched && !toque_anterior) {
