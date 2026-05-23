@@ -1,0 +1,98 @@
+#include <Arduino.h>
+#include <Wire.h>
+#include <Arduino_GFX_Library.h>
+#include <TAMC_GT911.h>
+
+// --- CH422G ---
+#define CH422G_MODE   0x24
+#define CH422G_OUTPUT 0x38
+
+void ch422g_write(uint8_t reg, uint8_t value) {
+    Wire.beginTransmission(reg);
+    Wire.write(value);
+    Wire.endTransmission();
+}
+
+// --- LCD ---
+Arduino_ESP32RGBPanel *bus = new Arduino_ESP32RGBPanel(
+    5, 3, 46, 7,
+    1, 2, 42, 41, 40,
+    39, 0, 45, 48, 47, 21,
+    14, 38, 18, 17, 10,
+    0, 8, 4, 8,
+    0, 8, 4, 8,
+    1, 14000000
+);
+Arduino_RGB_Display *gfx = new Arduino_RGB_Display(800, 480, bus);
+
+// --- Touch GT911 ---
+#define TOUCH_INT 4
+#define TOUCH_RST -1   // se gestiona por CH422G
+TAMC_GT911 ts(8 /*SDA*/, 9 /*SCL*/, TOUCH_INT, TOUCH_RST, 800, 480);
+
+// --- Boton ---
+const int BTN_X = 280, BTN_Y = 180, BTN_W = 240, BTN_H = 100;
+int contador = 0;
+bool toque_anterior = false;
+
+void dibujar_boton(uint16_t color) {
+    gfx->fillRoundRect(BTN_X, BTN_Y, BTN_W, BTN_H, 14, color);
+    gfx->drawRoundRect(BTN_X, BTN_Y, BTN_W, BTN_H, 14, WHITE);
+    gfx->setTextColor(WHITE);
+    gfx->setTextSize(4);
+    gfx->setCursor(BTN_X + 70, BTN_Y + 35);
+    gfx->print("Pulsa");
+}
+
+void dibujar_contador() {
+    gfx->fillRect(280, 320, 240, 40, BLACK);
+    gfx->setTextColor(WHITE);
+    gfx->setTextSize(3);
+    gfx->setCursor(310, 325);
+    gfx->printf("Conteo: %d", contador);
+}
+
+void setup() {
+    Serial.begin(115200);
+    delay(2000);
+
+    Wire.begin(8, 9);
+    ch422g_write(CH422G_MODE,   0x01);
+    ch422g_write(CH422G_OUTPUT, 0x1F);   // BL_EN + TP_RST + LCD_RST en alto
+
+    gfx->begin();
+    gfx->fillScreen(BLACK);
+
+    ts.begin();
+    ts.setRotation(ROTATION_NORMAL);
+
+    dibujar_boton(BLUE);
+    dibujar_contador();
+}
+
+void loop() {
+    ts.read();
+    bool toque_ahora = ts.isTouched;
+
+    // Flanco de subida: solo reaccionamos al inicio del toque (no mientras esta pulsado)
+    if (toque_ahora && !toque_anterior) {
+        int x = ts.points[0].x;
+        int y = ts.points[0].y;
+        Serial.printf("Toque en %d,%d\n", x, y);
+
+        if (x >= BTN_X && x <= BTN_X + BTN_W &&
+            y >= BTN_Y && y <= BTN_Y + BTN_H) {
+            contador++;
+            // Feedback visual: parpadeo rapido
+            dibujar_boton(RED);
+            delay(80);
+            dibujar_boton(BLUE);
+            dibujar_contador();
+            // Aqui es donde llamarias a tu accion real
+            Serial.printf(">>> Boton pulsado, contador=%d\n", contador);
+        }
+    }
+
+    toque_anterior = toque_ahora;
+    delay(10);
+}
