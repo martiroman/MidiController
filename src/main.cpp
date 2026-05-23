@@ -62,7 +62,7 @@ void dibujar_boton() {
     gfx->setTextColor(WHITE);
     gfx->setTextSize(4);
     gfx->setCursor(BTN_X + 65, BTN_Y + 35);
-    gfx->print(arp_activo ? "STOP" : "PLAY");
+    gfx->print(arp_activo ? "STOP" : "START");
 }
 
 // --- Callbacks MIDI ---
@@ -105,7 +105,8 @@ void setup() {
     ArduinoOTA.onError([](ota_error_t error) {
         Serial.printf("Error [%u]\n", error);
     });
-
+    
+    ArduinoOTA.setHostname("microkorg-esp32");
     ArduinoOTA.begin();
     Serial.println("\nListo para recibir ccdigo por WiFi");
     Serial.print("IP: ");
@@ -128,7 +129,7 @@ void setup() {
     midi.onDeviceDisconnected(onDisconnected);
     midi.begin();
 
-    debug_screen("Sistema Iniciado...", YELLOW);
+    debug_screen("Starting CyM...", YELLOW);
     dibujar_boton();
 }
 
