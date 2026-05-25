@@ -1,4 +1,12 @@
-// --- Arte ASCII (usando raw strings para facilitar) ---
+#define RETRO_RED      0xF800
+#define RETRO_GREEN    0x07E0
+#define RETRO_BLUE     0x001F
+#define RETRO_YELLOW   0xFFE0
+#define RETRO_MAGENTA  0xF81F
+#define RETRO_CYAN     0x07FF
+#define RETRO_ORANGE   0xFD20
+#define RETRO_PURPLE   0x780F
+
 // --- Arte ASCII Estilo Arcade de los 80 ---
 const char* arc_almen[] = {
   "     _    _      __  __ _____ _   _ ",
@@ -27,7 +35,7 @@ const char* arc_korg[] = {
 const char* arc_boder_top = "################################################################";
 const char* arc_boder_bot = "################################################################";
 
-// --- Melodía de Mario Bros ---
+// --- Melodia Mario Bros ---
 struct Note {
   int note;
   int duration;
@@ -36,18 +44,6 @@ struct Note {
 Note marioMelody[] = {
   {76, 150}, {76, 150}, {0, 150}, {76, 150}, {0, 150}, {72, 150}, {76, 150}, {0, 150}, {79, 150}, {0, 450}, {67, 150}, {0, 450}, 
 };
-
-// --- Definiciones de Colores Retro (565 RGB) ---
-#define RETRO_RED      0xF800
-#define RETRO_GREEN    0x07E0
-#define RETRO_BLUE     0x001F
-#define RETRO_YELLOW   0xFFE0
-#define RETRO_MAGENTA  0xF81F
-#define RETRO_CYAN     0x07FF
-#define RETRO_ORANGE   0xFD20
-#define RETRO_PURPLE   0x780F
-
-
 
 void drawAscii(Arduino_RGB_Display* gfx, const char* art[], int lines, int x, int y, uint16_t color) {
   gfx->setTextColor(color);

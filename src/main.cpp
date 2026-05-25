@@ -2,8 +2,9 @@
 #include "hardware.h"
 #include "ui.h"
 #include "UsbMidi.h"
-#include "teclado.h"
+#include "keyboard.h"
 #include "intro.h"
+#include "music.h"
 
 // Global objects
 Arduino_RGB_Display* gfx;
@@ -26,7 +27,7 @@ void setup() {
     
     delay(5000);
     intro(midi, gfx);
-    dibujarTecladoRetro(gfx);
+    drawKeyboard(gfx);
 }
 
 void loop() {
@@ -38,17 +39,17 @@ void loop() {
         int tx = ts.points[0].x;
         int ty = ts.points[0].y;
 
-        int nota_detectada = obtenerNotaDesdeTouch(tx, ty);
+        int nota_detectada = getKeyboardNote(tx, ty);
 
         if (nota_detectada != -1) {
-            uint8_t nota_midi = NOTAS_TECLADO[nota_detectada];
+            uint8_t nota_midi = NOTES[nota_detectada];
 
             // Si el dedo se movió a otra tecla distinta
             if (nota_detectada != ultima_nota_tocada) {
                 
                 // 1. Apagar nota anterior 
                 if (ultima_nota_tocada != -1) {
-                    midi.noteOff(1, NOTAS_TECLADO[ultima_nota_tocada], 0);
+                    midi.noteOff(1, NOTES[ultima_nota_tocada], 0);
                 }
 
                 // 2. Encender nueva nota
@@ -57,14 +58,12 @@ void loop() {
                 // Guardamos el estado para no repetir el disparo por rafaga
                 ultima_nota_tocada = nota_detectada;
                 
-                // Opcional: Podés pintar un pixel o cartelito indicando 
-                // la nota activa para darle más feedback visual arcade.
             }
         }
     } else {
         // En el momento exacto en que se levanta el dedo de la pantalla
         if (ultima_nota_tocada != -1) {
-            midi.noteOff(1, NOTAS_TECLADO[ultima_nota_tocada], 0);
+            midi.noteOff(1, NOTES[ultima_nota_tocada], 0);
             
             // Limpiamos rastro visual si es necesario y reseteamos el estado
             ultima_nota_tocada = -1;
