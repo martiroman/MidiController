@@ -2,6 +2,8 @@
 #include <Arduino_GFX_Library.h>
 
 struct Boton {
+    // Boton btnPlay = {280, 180, 240, 100, "PLAY/STOP", GREEN, BLUE, &arp_activo};
+
     int x, y, w, h;
     const char* label;
     uint16_t colorActivo;
