@@ -3,6 +3,7 @@
 #include "ui.h"
 #include "UsbMidi.h"
 #include "M5UnitSynth.h"
+#include "teclado.h"
 
 // App State Variables
 bool arp_activo = false;
@@ -12,7 +13,6 @@ bool toque_anterior = false;
 // Secuencer variables
 unsigned long t_ultimo_paso = 0;
 unsigned long intervalo = 250; 
-uint8_t notas[4] = {60, 63, 67, 70}; // Acorde de ejemplo
 int idx = 0;
 
 // Global objects
@@ -25,61 +25,106 @@ Boton btnPlay = {280, 180, 240, 100, "PLAY/STOP", GREEN, BLUE, &arp_activo};
 
 void setup() {
     Serial.begin(115200);
-    Wire.begin(8, 9);
-    delay(100);
+    
+    digitalWrite(38, HIGH); 
+    delay(200);
 
     init_wifi_ota();
     
-    // Encender el bus de 5V para el NTS-1
-    ch422g_write(CH422G_REG_MODE, 0x01);
-    ch422g_write(CH422G_REG_OUT, 0x1F);
-    delay(500);
-
     gfx = init_display();
     ts.begin();
 
+    Serial.println("\n--- ESCANER I2C ---");
+
+    // Forzamos los pines de habilitación
+    pinMode(14, OUTPUT); digitalWrite(14, HIGH);
+    pinMode(38, OUTPUT); digitalWrite(38, HIGH);
+    delay(200);
+
+    Wire.begin(8, 9);
+
+    // Escaneo I2C para verificar que el CH422G responde
+    // scan_i2c(gfx);
+
+    debug_screen(gfx, "Configurando CH422G...", WHITE);
+
+    // 1. Reset
+    ch422g_write(CH422G_REG_MODE, 0x00); 
+    delay(50);
+    
+    // 2. Modo 2: Habilitación Global (0x80) + Modo de Salida Alternativo (0x10)
+    ch422g_write(CH422G_REG_MODE, 0x90); 
+    delay(50);
+    
+    // 3. Probamos abrir con HIGH total
+    ch422g_write(CH422G_REG_OUT, 0xFF);
+    delay(500);
+
+    debug_screen(gfx, "Outputs en HIGH. Verificar LED.", GREEN);
+
     // Inicializar MIDI
     midi.begin();
-
-    debug_screen(gfx, "Starting CyM...", WHITE);
+    debug_screen(gfx, "USB MIDI Inicializado", WHITE);
     
+    // Inicializar Sintetizador
+    synth.begin();
+    debug_screen(gfx, "Sintetizador Inicializado", WHITE);
+
     if (WiFi.status() == WL_CONNECTED) {
-        debug_screen(gfx, "WiFi Conectada!", GREEN);
-        String ipStr = "IP: " + WiFi.localIP().toString();
-        debug_screen(gfx, ipStr.c_str(), BLUE);
+        String ipStr = "WIFI Connected | IP: " + WiFi.localIP().toString();
+        debug_screen(gfx, ipStr.c_str(), GREEN);
     }
     
     // Dibujar interfaz inicial
-    btnPlay.dibujar(gfx);
+    //btnPlay.dibujar(gfx);
+    dibujarTecladoRetro(gfx);
 }
 
 void loop() {
     ArduinoOTA.handle();
     ts.read();
+    midi.update();
     
-    // Procesar interacciones de Touch
-    if (ts.isTouched && !toque_anterior) {
+    if (ts.isTouched) {
         int tx = ts.points[0].x;
         int ty = ts.points[0].y;
-        
-        if (btnPlay.checkToque(tx, ty)) {
-            if (!arp_activo) {
-                // Panico: Apagar ultima nota si se frena el arp
-                synth.setNoteOff(1, notas[idx == 0 ? 3 : idx - 1], 0);
+
+        // Buscamos qué tecla de la octava se presionó
+        int nota_detectada = obtenerNotaDesdeTouch(tx, ty);
+
+        if (nota_detectada != -1) {
+            uint8_t nota_midi = NOTAS_TECLADO[nota_detectada];
+
+            // Si el dedo se movió a otra tecla distinta
+            if (nota_detectada != ultima_nota_tocada) {
+                
+                // 1. Apagar nota anterior (si había una sonando)
+                if (ultima_nota_tocada != -1) {
+                    midi.noteOff(1, NOTAS_TECLADO[ultima_nota_tocada], 0);
+                    synth.setNoteOff(1, NOTAS_TECLADO[ultima_nota_tocada], 0);
+                }
+
+                // 2. Encender nueva nota
+                midi.noteOn(1, nota_midi, 127); // 127 = Volumen máximo (Estilo chiptune)
+                synth.setNoteOn(1, nota_midi, 127);
+                
+                // Guardamos el estado para no repetir el disparo por ráfaga
+                ultima_nota_tocada = nota_detectada;
+                
+                // Opcional: Podés pintar un pixel o cartelito indicando 
+                // la nota activa para darle más feedback visual arcade.
             }
-            btnPlay.dibujar(gfx); // Redibuja con el nuevo color
+        }
+    } else {
+        // En el momento exacto en que se levanta el dedo de la pantalla
+        if (ultima_nota_tocada != -1) {
+            midi.noteOff(1, NOTAS_TECLADO[ultima_nota_tocada], 0);
+            synth.setNoteOff(1, NOTAS_TECLADO[ultima_nota_tocada], 0);
+            
+            // Limpiamos rastro visual si es necesario y reseteamos el estado
+            ultima_nota_tocada = -1;
         }
     }
-    toque_anterior = ts.isTouched;
 
-    // Lógica del secuenciador / Arpegiador
-    if (arp_activo && (millis() - t_ultimo_paso >= intervalo)) {
-        synth.setNoteOff(1, notas[idx == 0 ? 3 : idx - 1], 0);
-        synth.setNoteOn(1, notas[idx], 100);
-        
-        idx = (idx + 1) % 4;
-        t_ultimo_paso = millis();
-    }
-    
-    delay(1);
+    delay(10); // Estabilidad para los rebotes del touch
 }
