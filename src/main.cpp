@@ -3,6 +3,7 @@
 #include "ui.h"
 #include "UsbMidi.h"
 #include "keyboard.h"
+#include "piano-ui.h"
 #include "intro.h"
 #include "music.h"
 
@@ -10,6 +11,12 @@
 Arduino_RGB_Display* gfx;
 TAMC_GT911 ts(8, 9, 4, -1, 800, 480);
 UsbMidi midi;
+PianoKeyboard keyboard;
+
+//TODO: SEPARAR LA UI DEL PIANO
+PianoUI ui; 
+
+int ultima_nota_tocada = -1; // Estado para evitar repetición de notas
 
 void setup() {
     Serial.begin(115200);
@@ -27,7 +34,7 @@ void setup() {
     
     delay(5000);
     intro(midi, gfx);
-    drawKeyboard(gfx);
+    keyboard.draw(gfx);
 }
 
 void loop() {
@@ -39,7 +46,7 @@ void loop() {
         int tx = ts.points[0].x;
         int ty = ts.points[0].y;
 
-        int nota_detectada = getKeyboardNote(tx, ty);
+        int nota_detectada = keyboard.getNoteAtTouch(tx, ty);
 
         if (nota_detectada != -1) {
             uint8_t nota_midi = NOTES[nota_detectada];

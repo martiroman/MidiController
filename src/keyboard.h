@@ -1,89 +1,112 @@
+#pragma once
+#include "piano-config.h"
+
 #include <Arduino.h>
 
-#define COLOR_FONDO     0x0000 
-#define COLOR_BLANCA    0xFFFF 
-#define COLOR_NEGRA     0x10A2 
-#define COLOR_BORDE     0x0000 
+#define COLOR_BACKGROUND  0x0000
+#define COLOR_WHITE_KEY   0xFFFF
+#define COLOR_BLACK_KEY   0x10A2
+#define COLOR_BORDER      0x0000
 
-const int TECLAS_BLANCAS = 8; 
-const int ANCHO_PANTALLA = 800;
-const int ALTO_PANTALLA  = 480;
+class PianoKeyboard {
+public:
+    static const int BLACK_KEY_INDICES[PianoConfig::BLACK_KEY_COUNT];
 
-const int ANCHO_W = ANCHO_PANTALLA / TECLAS_BLANCAS; // 100 px cada blanca exactos
-const int ALTO_W  = ALTO_PANTALLA - 110;              
-const int ANCHO_B = (ANCHO_W * 6) / 10;              // 60% del ancho de la blanca queda mejor
-const int ALTO_B  = (ALTO_W * 6) / 10;               // 60% del alto
+    int lastNotePlayed = -1;
+    PianoKeyboard() {}
 
-int ultima_nota_tocada = -1; // Para evitar disparos repetidos al mantener el dedo en la misma tecla
+    
+    void draw(Arduino_RGB_Display* gfx) {
+        gfx->fillScreen(COLOR_BACKGROUND);
 
-void drawKeyboard(Arduino_RGB_Display* gfx) {
-    gfx->fillScreen(COLOR_FONDO);
-    gfx->setTextColor(0xFFFF);
-    gfx->setTextSize(2); 
-    gfx->setCursor(10, 10);
-    gfx->print("HOLA ALMENDRA - ESP-8BIT SYNTH // OCTAVE 1");
+        // Header
+        gfx->setTextColor(0xFFFF);
+        gfx->setTextSize(2);
+        gfx->setCursor(10, 10);
+        gfx->print("HOLA ALMENDRA - ESP-8BIT SYNTH // OCTAVE 1");
 
-    // 1. Dibujar Teclas Blancas (De izquierda a derecha de forma natural)
-    int idx_blanca = 0;
-    for (int i = 0; i < 13; i++) {
-        // Notas negras: Do#(1), Re#(3), Fa#(6), Sol#(8), La#(10)
-        if (i == 1 || i == 3 || i == 6 || i == 8 || i == 10) continue; 
-        
-        int x = idx_blanca * ANCHO_W;
-        int y = 60;
-        
-        gfx->fillRect(x, y, ANCHO_W, ALTO_W, COLOR_BLANCA);
-        gfx->drawRect(x, y, ANCHO_W, ALTO_W, COLOR_BORDE);
-        gfx->drawRect(x + 1, y + 1, ANCHO_W - 2, ALTO_W - 2, COLOR_BORDE); 
-        
-        idx_blanca++;
+        drawWhiteKeys(gfx);
+        drawBlackKeys(gfx);
     }
 
-    // 2. Dibujar Teclas Negras (Centradas en los valles correctos)
-    idx_blanca = 0;
-    for (int i = 0; i < 12; i++) {
-        // Si es blanca, sumamos al contador físico de posición y saltamos
-        if (i != 1 && i != 3 && i != 6 && i != 8 && i != 10) {
-            idx_blanca++;
-            continue;
+    // Returns the MIDI note index (0–12), or -1 if no key was hit.
+    int getNoteAtTouch(int tx, int ty) {
+        tx = PianoConfig::SCREEN_WIDTH - tx; // Flip X axis
+
+        if (ty < PianoConfig::KEY_Y_OFFSET || ty > PianoConfig::KEY_Y_OFFSET + PianoConfig::WHITE_KEY_HEIGHT) return -1;
+
+        // 1. Check black keys first (upper zone + tolerance)
+        if (ty >= PianoConfig::KEY_Y_OFFSET && ty <= PianoConfig::KEY_Y_OFFSET + PianoConfig::BLACK_KEY_HEIGHT + 15) {
+            int note = hitBlackKey(tx);
+            if (note != -1) return note;
         }
 
-        // x se posiciona en la intersección exacta de las blancas
-        int x = (idx_blanca * ANCHO_W) - (ANCHO_B / 2);
-        int y = 60;
-
-        gfx->fillRect(x, y, ANCHO_B, ALTO_B, COLOR_NEGRA);
-        gfx->drawRect(x, y, ANCHO_B, ALTO_B, COLOR_BORDE);
-        gfx->drawRect(x + 1, y + 1, ANCHO_B - 2, ALTO_B - 2, COLOR_BORDE);
+        // 2. Fall through to white key (linear mapping)
+        return hitWhiteKey(tx);
     }
-}
 
-int getKeyboardNote(int tx, int ty) {
-    tx = ANCHO_PANTALLA - tx; 
+private:
+    bool isBlackKey(int index) const {
+        for (int i = 0; i < PianoConfig::BLACK_KEY_COUNT; i++)
+            if (BLACK_KEY_INDICES[i] == index) return true;
+        return false;
+    }
 
-    if (ty < 60 || ty > ALTO_PANTALLA) return -1; 
+    void drawWhiteKeys(Arduino_RGB_Display* gfx) {
+        int whiteIdx = 0;
+        for (int i = 0; i < 13; i++) {
+            if (isBlackKey(i)) continue;
 
-    // 1. Verificar si toco una tecla negra (Zona Superior)
-    if (ty >= 60 && ty <= (60 + ALTO_B + 15)) { // 15 píxeles de tolerancia hacia abajo para facilitar el toque de las negras
-        int idx_blanca = 0;
+            int x = whiteIdx * PianoConfig::WHITE_KEY_WIDTH;
+            int y = PianoConfig::KEY_Y_OFFSET;
+
+            gfx->fillRect(x, y, PianoConfig::WHITE_KEY_WIDTH, PianoConfig::WHITE_KEY_HEIGHT, COLOR_WHITE_KEY);
+            gfx->drawRect(x,     y,     PianoConfig::WHITE_KEY_WIDTH,     PianoConfig::WHITE_KEY_HEIGHT,     COLOR_BORDER);
+            gfx->drawRect(x + 1, y + 1, PianoConfig::WHITE_KEY_WIDTH - 2, PianoConfig::WHITE_KEY_HEIGHT - 2, COLOR_BORDER);
+
+            whiteIdx++;
+        }
+    }
+
+    void drawBlackKeys(Arduino_RGB_Display* gfx) {
+        int whiteIdx = 0;
         for (int i = 0; i < 12; i++) {
-            if (i != 1 && i != 3 && i != 6 && i != 8 && i != 10) {
-                idx_blanca++;
+            if (!isBlackKey(i)) {
+                whiteIdx++;
                 continue;
             }
-            
-            int x_negra = (idx_blanca * ANCHO_W) - (ANCHO_B / 2);
-            if (tx >= x_negra && tx <= (x_negra + ANCHO_B)) {
-                return i; // Devuelve el indice MIDI correcto (1, 3, 6, 8 o 10)
-            }
+
+            int x = (whiteIdx * PianoConfig::WHITE_KEY_WIDTH) - (PianoConfig::BLACK_KEY_WIDTH / 2);
+            int y = PianoConfig::KEY_Y_OFFSET;
+
+            gfx->fillRect(x, y, PianoConfig::BLACK_KEY_WIDTH, PianoConfig::BLACK_KEY_HEIGHT, COLOR_BLACK_KEY);
+            gfx->drawRect(x,     y,     PianoConfig::BLACK_KEY_WIDTH,     PianoConfig::BLACK_KEY_HEIGHT,     COLOR_BORDER);
+            gfx->drawRect(x + 1, y + 1, PianoConfig::BLACK_KEY_WIDTH - 2, PianoConfig::BLACK_KEY_HEIGHT - 2, COLOR_BORDER);
         }
     }
 
-    // 2. Si no fue negra, cae en una blanca de forma lineal estandar
-    int columna_blanca = tx / ANCHO_W;
-    if (columna_blanca >= TECLAS_BLANCAS) columna_blanca = TECLAS_BLANCAS - 1;
+    int hitBlackKey(int tx) const {
+        int whiteIdx = 0;
+        for (int i = 0; i < 12; i++) {
+            if (!isBlackKey(i)) {
+                whiteIdx++;
+                continue;
+            }
+            int keyX = (whiteIdx * PianoConfig::WHITE_KEY_WIDTH) - (PianoConfig::BLACK_KEY_WIDTH / 2);
+            if (tx >= keyX && tx <= keyX + PianoConfig::BLACK_KEY_WIDTH)
+                return i; // MIDI index: 1, 3, 6, 8, or 10
+        }
+        return -1;
+    }
 
-    // Mapeo directo y natural de izquierda a derecha: C, D, E, F, G, A, B, C
-    int mapeo_blancas[] = {0, 2, 4, 5, 7, 9, 11, 12};
-    return mapeo_blancas[columna_blanca];
-}
+    int hitWhiteKey(int tx) const {
+        static const int WHITE_KEY_MAP[] = {0, 2, 4, 5, 7, 9, 11, 12}; // C D E F G A B C
+
+        int col = tx / PianoConfig::WHITE_KEY_WIDTH;
+        if (col >= PianoConfig::WHITE_KEY_COUNT) col = PianoConfig::WHITE_KEY_COUNT - 1;
+        return WHITE_KEY_MAP[col];
+    }
+};
+
+// Define static array outside the class
+const int PianoKeyboard::BLACK_KEY_INDICES[PianoConfig::BLACK_KEY_COUNT] = {1, 3, 6, 8, 10};
