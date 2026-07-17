@@ -23,8 +23,9 @@ public:
         gfx->setTextColor(0xFFFF);
         gfx->setTextSize(2);
         gfx->setCursor(10, 10);
-        gfx->print("HOLA ALMENDRA - ESP-8BIT SYNTH // OCTAVE 1");
+        gfx->print("ESP-8BIT SYNTH");
 
+        drawControlPanel(gfx);
         drawWhiteKeys(gfx);
         drawBlackKeys(gfx);
     }
@@ -33,8 +34,10 @@ public:
     int getNoteAtTouch(int tx, int ty) {
         tx = PianoConfig::SCREEN_WIDTH - tx; // Flip X axis
 
-        if (ty < PianoConfig::KEY_Y_OFFSET || ty > PianoConfig::KEY_Y_OFFSET + PianoConfig::WHITE_KEY_HEIGHT) return -1;
-
+        if (ty < PianoConfig::KEY_Y_OFFSET || ty > PianoConfig::KEY_Y_OFFSET + PianoConfig::WHITE_KEY_HEIGHT) {
+            //TODO: Panel de Control (REC, PLAY, OCTAVE)
+            return -1;
+        }
         // 1. Check black keys first (upper zone + tolerance)
         if (ty >= PianoConfig::KEY_Y_OFFSET && ty <= PianoConfig::KEY_Y_OFFSET + PianoConfig::BLACK_KEY_HEIGHT + 15) {
             int note = hitBlackKey(tx);
@@ -61,7 +64,7 @@ private:
             int y = PianoConfig::KEY_Y_OFFSET;
 
             gfx->fillRect(x, y, PianoConfig::WHITE_KEY_WIDTH, PianoConfig::WHITE_KEY_HEIGHT, COLOR_WHITE_KEY);
-            gfx->drawRect(x,     y,     PianoConfig::WHITE_KEY_WIDTH,     PianoConfig::WHITE_KEY_HEIGHT,     COLOR_BORDER);
+            gfx->drawRect(x, y, PianoConfig::WHITE_KEY_WIDTH, PianoConfig::WHITE_KEY_HEIGHT, COLOR_BORDER);
             gfx->drawRect(x + 1, y + 1, PianoConfig::WHITE_KEY_WIDTH - 2, PianoConfig::WHITE_KEY_HEIGHT - 2, COLOR_BORDER);
 
             whiteIdx++;
@@ -80,7 +83,7 @@ private:
             int y = PianoConfig::KEY_Y_OFFSET;
 
             gfx->fillRect(x, y, PianoConfig::BLACK_KEY_WIDTH, PianoConfig::BLACK_KEY_HEIGHT, COLOR_BLACK_KEY);
-            gfx->drawRect(x,     y,     PianoConfig::BLACK_KEY_WIDTH,     PianoConfig::BLACK_KEY_HEIGHT,     COLOR_BORDER);
+            gfx->drawRect(x, y, PianoConfig::BLACK_KEY_WIDTH, PianoConfig::BLACK_KEY_HEIGHT, COLOR_BORDER);
             gfx->drawRect(x + 1, y + 1, PianoConfig::BLACK_KEY_WIDTH - 2, PianoConfig::BLACK_KEY_HEIGHT - 2, COLOR_BORDER);
         }
     }
@@ -105,6 +108,44 @@ private:
         int col = tx / PianoConfig::WHITE_KEY_WIDTH;
         if (col >= PianoConfig::WHITE_KEY_COUNT) col = PianoConfig::WHITE_KEY_COUNT - 1;
         return WHITE_KEY_MAP[col];
+    }
+
+    void drawControlPanel(Arduino_RGB_Display* gfx) {
+        int btnWidth = 80;
+        int btnHeight = 60;
+        int spacing = 16;
+        
+        int panelY = 35; 
+
+        int octavaActual = 1; 
+        int btnMinusX = 10;
+        drawButton(gfx, btnMinusX, panelY, btnWidth, btnHeight, "-");
+
+        int visorX = btnMinusX + btnWidth + spacing;
+        drawButton(gfx, visorX, panelY, btnWidth, btnHeight, String(octavaActual).c_str());
+
+        int btnPlusX = visorX + btnWidth + spacing;
+        drawButton(gfx, btnPlusX, panelY, btnWidth, btnHeight, "+");
+
+        int btnRecX = btnPlusX + btnWidth + (spacing * 3);
+        drawButton(gfx, btnRecX, panelY, btnWidth, btnHeight, "REC");
+
+        int btnPlayX = btnRecX + btnWidth + spacing;
+        drawButton(gfx, btnPlayX, panelY, btnWidth, btnHeight, "PLAY");
+    }
+
+    void drawButton(Arduino_RGB_Display* gfx, int x, int y, int w, int h, const char* label) {
+        gfx->drawRect(x, y, w, h, COLOR_WHITE_KEY);
+        
+        gfx->setTextSize(3);
+        gfx->setTextColor(COLOR_WHITE_KEY);
+        
+        int charCount = strlen(label);
+        int textX = x + (w - (charCount * 6)) / 2; // 6 píxeles de ancho por carácter en size 1
+        int textY = y + (h - 8) / 2;               // 8 píxeles de alto en size 1
+        
+        gfx->setCursor(textX, textY);
+        gfx->print(label);
     }
 };
 

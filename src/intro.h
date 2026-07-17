@@ -98,6 +98,7 @@ void intro(UsbMidi& midi, Arduino_RGB_Display* gfx) {
   gfx->setCursor(0, startY);
   gfx->print(arc_boder_bot);
 
+  /*
   for (int i = 0; i < sizeof(marioMelody) / sizeof(marioMelody[0]); i++) {
     if (marioMelody[i].note > 0) {
       midi.noteOn(1, marioMelody[i].note, 127);
@@ -115,5 +116,6 @@ void intro(UsbMidi& midi, Arduino_RGB_Display* gfx) {
   }
 
   delay(2000);
+  */
   gfx->fillScreen(BLUE);
 }
