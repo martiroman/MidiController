@@ -1,22 +1,20 @@
 #include <Arduino.h>
-#include "hardware.h"
-#include "ui.h"
+#include "../shared/hardware.h"
 #include "UsbMidi.h"
-#include "keyboard.h"
-#include "piano-ui.h"
-#include "intro.h"
-#include "music.h"
+#include "../keyboard/piano_keyboard.h"
+#include "../keyboard/piano_notes.h"
+#include "../ui/ui_controls.h"
+#include "../ui/ui_intro.h"
 
 // Global objects
 Arduino_RGB_Display* gfx;
 TAMC_GT911 ts(8, 9, 4, -1, 800, 480);
 UsbMidi midi;
-PianoKeyboard keyboard;
 
-//TODO: SEPARAR LA UI DEL PIANO
+PianoKeyboard keyboard;
 PianoUI ui; 
 
-int ultima_nota_tocada = -1; // Estado para evitar repetición de notas
+int ultima_nota_tocada = -1;
 
 void setup() {
     Serial.begin(115200);
@@ -51,28 +49,28 @@ void loop() {
         if (nota_detectada != -1) {
             uint8_t nota_midi = NOTES[nota_detectada];
 
-            // Si el dedo se movió a otra tecla distinta
+            //Si mueve dedo a otra nota
             if (nota_detectada != ultima_nota_tocada) {
                 
-                // 1. Apagar nota anterior 
+                //Apagar nota anterior 
                 if (ultima_nota_tocada != -1) {
                     midi.noteOff(1, NOTES[ultima_nota_tocada], 0);
                 }
 
-                // 2. Encender nueva nota
+                //Encender nueva nota
                 midi.noteOn(1, nota_midi, 127); // 127 = Volumen maximo (Estilo chiptune)
                 
-                // Guardamos el estado para no repetir el disparo por rafaga
+                //Guarda el estado para no repetir el disparo por rafaga
                 ultima_nota_tocada = nota_detectada;
                 
             }
         }
     } else {
-        // En el momento exacto en que se levanta el dedo de la pantalla
+        //Momento que se levanta el dedo de la pantalla
         if (ultima_nota_tocada != -1) {
             midi.noteOff(1, NOTES[ultima_nota_tocada], 0);
             
-            // Limpiamos rastro visual si es necesario y reseteamos el estado
+            //Limpia
             ultima_nota_tocada = -1;
         }
     }

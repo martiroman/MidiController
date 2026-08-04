@@ -1,7 +1,11 @@
+// piano-ui.h
+// Barra de botones de la interfaz
+// Created by Martin on 2024-06-15.
+
 #pragma once
-#include "piano-config.h"
 
 #include <Arduino.h>
+// Top bar UI controls for record/play/octave
 
 #define COLOR_BTN_RED_FACE    0xE104   // Rojo Mario
 #define COLOR_BTN_RED_SHADOW  0x8800
@@ -53,7 +57,7 @@ public:
         drawOctaveDisplay(gfx);
     }
 
-    // Devuelve true si tocó algún botón
+    // Devuelve true si toca boton
     bool handleTouch(int tx, int ty) {
         if (contains(rectRec, tx, ty))   { toggleRec();   return true; }
         if (contains(rectPlay, tx, ty))  { togglePlay();  return true; }
@@ -68,7 +72,6 @@ private:
                y >= r.y && y <= r.y + r.h;
     }
 
-    // Botón estilo pixel con sombra inferior (efecto 3D 8-bit)
     void drawPixelButton(Arduino_RGB_Display* gfx,
                          const Rect& r,
                          const char* label,
