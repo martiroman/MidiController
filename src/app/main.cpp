@@ -12,9 +12,15 @@ TAMC_GT911 ts(8, 9, 4, -1, 800, 480);
 UsbMidi midi;
 
 PianoKeyboard keyboard;
-PianoUI ui; 
+ControlsUI ui; 
 
 int ultima_nota_tocada = -1;
+
+namespace {
+    int mapKeyboardTouchX(int tx) {
+        return PianoConfig::SCREEN_WIDTH - tx;
+    }
+}
 
 void setup() {
     Serial.begin(115200);
@@ -33,6 +39,7 @@ void setup() {
     delay(5000);
     intro(midi, gfx);
     keyboard.draw(gfx);
+    ui.draw(gfx);
 }
 
 void loop() {
@@ -44,25 +51,29 @@ void loop() {
         int tx = ts.points[0].x;
         int ty = ts.points[0].y;
 
-        int nota_detectada = keyboard.getNoteAtTouch(tx, ty);
+        if (ui.handleTouch(tx, ty)) {
+            // El toque fue usado por los controles superiores.
+        } else {
+            int nota_detectada = keyboard.getNoteAtTouch(mapKeyboardTouchX(tx), ty);
 
-        if (nota_detectada != -1) {
-            uint8_t nota_midi = NOTES[nota_detectada];
+            if (nota_detectada != -1) {
+                uint8_t nota_midi = NOTES[nota_detectada];
 
-            //Si mueve dedo a otra nota
-            if (nota_detectada != ultima_nota_tocada) {
-                
-                //Apagar nota anterior 
-                if (ultima_nota_tocada != -1) {
-                    midi.noteOff(1, NOTES[ultima_nota_tocada], 0);
+                //Si mueve dedo a otra nota
+                if (nota_detectada != ultima_nota_tocada) {
+                    
+                    //Apagar nota anterior 
+                    if (ultima_nota_tocada != -1) {
+                        midi.noteOff(1, NOTES[ultima_nota_tocada], 0);
+                    }
+
+                    //Encender nueva nota
+                    midi.noteOn(1, nota_midi, 127); // 127 = Volumen maximo (Estilo chiptune)
+                    
+                    //Guarda el estado para no repetir el disparo por rafaga
+                    ultima_nota_tocada = nota_detectada;
+                    
                 }
-
-                //Encender nueva nota
-                midi.noteOn(1, nota_midi, 127); // 127 = Volumen maximo (Estilo chiptune)
-                
-                //Guarda el estado para no repetir el disparo por rafaga
-                ultima_nota_tocada = nota_detectada;
-                
             }
         }
     } else {

@@ -1,10 +1,11 @@
-// piano-ui.h
 // Barra de botones de la interfaz
 // Created by Martin on 2024-06-15.
 
 #pragma once
 
 #include <Arduino.h>
+#include <Arduino_GFX_Library.h>
+#include "../keyboard/piano_config.h"
 // Top bar UI controls for record/play/octave
 
 #define COLOR_BTN_RED_FACE    0xE104   // Rojo Mario
@@ -16,12 +17,12 @@
 #define COLOR_BTN_TEXT        0xFFFF
 #define COLOR_DISPLAY_BG      0x0000
 #define COLOR_DISPLAY_TEXT    0xFFE0   // Amarillo
-#define COLOR_BAR_BG          0x100D   // Azul oscuro
+#define COLOR_BAR_BG          0x0000  
 #define COLOR_BTN_SHADOW      0x0000
 
-class PianoUI {
+class ControlsUI {
 public:
-    static const int BAR_HEIGHT    = 110;  // = KEY_Y_OFFSET
+    static const int BAR_HEIGHT    = PianoConfig::TOP_BAR_HEIGHT;
     static const int BTN_H         = 36;
     static const int BTN_SHADOW    = 4;
     static const int BAR_Y         = 8;    // Padding vertical en la barra

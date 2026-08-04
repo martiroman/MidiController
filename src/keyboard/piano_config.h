@@ -3,7 +3,8 @@
 namespace PianoConfig {
     constexpr int SCREEN_WIDTH    = 800;
     constexpr int SCREEN_HEIGHT   = 480;
-    constexpr int KEY_Y_OFFSET    = 120;
+    constexpr int TOP_BAR_HEIGHT  = 110;
+    constexpr int KEY_Y_OFFSET    = TOP_BAR_HEIGHT;
     constexpr int WHITE_KEY_COUNT = 8;
 
     constexpr const int WHITE_KEY_WIDTH  = SCREEN_WIDTH / WHITE_KEY_COUNT; // 100 px each

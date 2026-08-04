@@ -11,16 +11,12 @@ void PianoKeyboard::draw(Arduino_RGB_Display* gfx) {
     gfx->setCursor(10, 10);
     gfx->print("ESP-8BIT SYNTH");
 
-    drawControlPanel(gfx);
     drawWhiteKeys(gfx);
     drawBlackKeys(gfx);
 }
 
 int PianoKeyboard::getNoteAtTouch(int tx, int ty) {
-    tx = PianoConfig::SCREEN_WIDTH - tx; // Flip X axis
-
-    if (ty < PianoConfig::KEY_Y_OFFSET || ty > PianoConfig::KEY_Y_OFFSET + PianoConfig::WHITE_KEY_HEIGHT) {
-        //TODO: Panel de Control (REC, PLAY, OCTAVE)
+    if (ty < PianoConfig::KEY_Y_OFFSET - 2 || ty > PianoConfig::KEY_Y_OFFSET + PianoConfig::WHITE_KEY_HEIGHT + 4) {
         return -1;
     }
 
