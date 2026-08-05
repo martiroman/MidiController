@@ -17,8 +17,12 @@ ControlsUI ui;
 int ultima_nota_tocada = -1;
 
 namespace {
-    int mapKeyboardTouchX(int tx) {
+    int mapTouchX(int tx) {
         return PianoConfig::SCREEN_WIDTH - tx;
+    }
+
+    int mapTouchY(int ty) {
+        return PianoConfig::SCREEN_HEIGHT - ty;
     }
 }
 
@@ -48,13 +52,21 @@ void loop() {
     midi.update();
     
     if (ts.isTouched) {
-        int tx = ts.points[0].x;
-        int ty = ts.points[0].y;
+        int rawX = ts.points[0].x;
+        int rawY = ts.points[0].y;
+        int tx = mapTouchX(rawX);
+        int ty = mapTouchY(rawY);
 
-        if (ui.handleTouch(tx, ty)) {
-            // El toque fue usado por los controles superiores.
+        //char debugBuf[64];
+        //snprintf(debugBuf, sizeof(debugBuf), "raw:%d,%d -> screen:%d,%d", rawX, rawY, tx, ty);
+        //debug_screen(gfx, debugBuf, WHITE);
+
+        if (ty <= ControlsUI::BAR_HEIGHT && tx >= 0 && tx <= PianoConfig::SCREEN_WIDTH) {
+            if (ui.handleTouch(tx, ty)) {
+                // El toque fue usado por los controles superiores.
+            }
         } else {
-            int nota_detectada = keyboard.getNoteAtTouch(mapKeyboardTouchX(tx), ty);
+            int nota_detectada = keyboard.getNoteAtTouch(tx, ty);
 
             if (nota_detectada != -1) {
                 uint8_t nota_midi = NOTES[nota_detectada];

@@ -16,7 +16,7 @@ void PianoKeyboard::draw(Arduino_RGB_Display* gfx) {
 }
 
 int PianoKeyboard::getNoteAtTouch(int tx, int ty) {
-    if (ty < PianoConfig::KEY_Y_OFFSET - 2 || ty > PianoConfig::KEY_Y_OFFSET + PianoConfig::WHITE_KEY_HEIGHT + 4) {
+    if (ty < PianoConfig::KEY_Y_OFFSET || ty > PianoConfig::KEY_Y_OFFSET + PianoConfig::WHITE_KEY_HEIGHT) {
         return -1;
     }
 
