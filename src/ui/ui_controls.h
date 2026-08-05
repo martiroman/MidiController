@@ -20,16 +20,16 @@
 #define COLOR_BTN_BLUE_SHADOW 0x0A5E
 #define COLOR_BTN_TEXT        0xFFFF
 #define COLOR_DISPLAY_BG      0x0000
-#define COLOR_DISPLAY_TEXT    0xFFE0   // Amarillo
-#define COLOR_BAR_BG          0x100D   // Azul oscuro
+#define COLOR_DISPLAY_TEXT    0xFFE0
+#define COLOR_BAR_BG          0x0000
 #define COLOR_BTN_SHADOW      0x0000
 
 class ControlsUI {
 public:
     static const int BAR_HEIGHT = 110;  // = KEY_Y_OFFSET
-    static const int BTN_H = 36;
-    static const int BTN_SHADOW = 4;
-    static const int BAR_Y = 8;    // Padding vertical en la barra
+    static const int BTN_H = 62;
+    static const int BTN_SHADOW = 8;
+    static const int BAR_Y = 16;    // Padding vertical en la barra
 
     int currentOctave = 4;
     bool isRecording = false;

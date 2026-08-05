@@ -5,13 +5,13 @@ void ControlsUI::draw(Arduino_RGB_Display* gfx) {
 
     drawPixelButton(gfx, rectRec,
         isRecording ? "STOP" : "REC",
-        isRecording ? COLOR_BTN_RED_FACE : COLOR_BTN_RED_FACE,
-        COLOR_BTN_RED_SHADOW);
+        isRecording ? COLOR_BTN_RED_FACE : COLOR_BTN_RED_SHADOW,
+        isRecording ? COLOR_BTN_RED_SHADOW : COLOR_BTN_RED_FACE);
 
     drawPixelButton(gfx, rectPlay,
         isPlaying ? "STOP" : "PLAY",
-        isPlaying ? 0xFFE0 : COLOR_BTN_GREEN_FACE,
-        isPlaying ? 0xA080 : COLOR_BTN_GREEN_SHADOW);
+        isPlaying ? COLOR_BTN_GREEN_FACE : COLOR_BTN_GREEN_SHADOW,
+        isPlaying ? COLOR_BTN_GREEN_SHADOW : COLOR_BTN_GREEN_FACE);
 
     drawPixelButton(gfx, rectOctDn, "<", COLOR_BTN_BLACK_FACE, COLOR_BTN_BLACK_SHADOW);
     drawPixelButton(gfx, rectOctUp, ">", COLOR_BTN_BLACK_FACE, COLOR_BTN_BLACK_SHADOW);
@@ -43,7 +43,7 @@ void ControlsUI::drawPixelButton(Arduino_RGB_Display* gfx,
     gfx->drawRect(r.x, r.y, r.w, r.h + BTN_SHADOW, COLOR_BTN_SHADOW);
 
     gfx->setTextColor(COLOR_BTN_TEXT);
-    gfx->setTextSize(1);
+    gfx->setTextSize(4);
     int textW = strlen(label) * 6;
     int textX = r.x + (r.w - textW) / 2;
     int textY = r.y + (r.h - 8) / 2;
@@ -60,7 +60,7 @@ void ControlsUI::drawOctaveDisplay(Arduino_RGB_Display* gfx) {
     gfx->drawRect(x + 1, BAR_Y + 1, w - 2, BTN_H - 2, COLOR_DISPLAY_TEXT);
 
     gfx->setTextColor(COLOR_DISPLAY_TEXT);
-    gfx->setTextSize(1);
+    gfx->setTextSize(4);
     char buf[8];
     snprintf(buf, sizeof(buf), "OCT %d", currentOctave);
     int textW = strlen(buf) * 6;
