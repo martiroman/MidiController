@@ -3,27 +3,19 @@
 // Created by Martin on 2024-06-15.
 
 #pragma once
-#include "piano_config.h"
-
 #include <Arduino.h>
 #include <Arduino_GFX_Library.h>
+#include "../IUIComponent.h"
+#include "../../config/Config.h"
+#include "../../config/Colors.h"
 
-#define COLOR_BACKGROUND  0x0000
-#define COLOR_WHITE_KEY   0xFFFF
-#define COLOR_BLACK_KEY   0x10A2
-#define COLOR_BORDER      0x0000
-
-class PianoKeyboard {
+class PianoKeyboard : public IUIComponent {
 public:
-    static const int BLACK_KEY_INDICES[PianoConfig::BLACK_KEY_COUNT];
-
     int lastNotePlayed = -1;
 
     PianoKeyboard();
     void draw(Arduino_RGB_Display* gfx);
-
-    // Returns the MIDI note index (0–12), or -1 if no key was hit.
-    int getNoteAtTouch(int tx, int ty);
+    uint8_t handleTouch(int tx, int ty);
 
 private:
     bool isBlackKey(int index) const;
