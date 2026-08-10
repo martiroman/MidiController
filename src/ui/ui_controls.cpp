@@ -40,13 +40,14 @@ void ControlsUI::drawPixelButton(Arduino_RGB_Display* gfx,
 {
     gfx->fillRect(r.x, r.y + r.h, r.w, BTN_SHADOW, shadowColor);
     gfx->fillRect(r.x, r.y, r.w, r.h, faceColor);
-    gfx->drawRect(r.x, r.y, r.w, r.h + BTN_SHADOW, COLOR_BTN_SHADOW);
+    //gfx->drawRect(r.x, r.y, r.w, r.h + BTN_SHADOW, COLOR_BTN_SHADOW);
 
     gfx->setTextColor(COLOR_BTN_TEXT);
     gfx->setTextSize(4);
-    int textW = strlen(label) * 6;
+    int textW = strlen(label) * 6 * 4; // 6 pixels per character at size 4
     int textX = r.x + (r.w - textW) / 2;
-    int textY = r.y + (r.h - 8) / 2;
+    int textH = 8 * 4; // 32 px den alto a tamao 4
+    int textY = r.y + (r.h - textH) / 2;
     gfx->setCursor(textX, textY);
     gfx->print(label);
 }
@@ -56,15 +57,22 @@ void ControlsUI::drawOctaveDisplay(Arduino_RGB_Display* gfx) {
     int w = rectOctUp.x - x - 4;
 
     gfx->fillRect(x, BAR_Y, w, BTN_H, COLOR_DISPLAY_BG);
-    gfx->drawRect(x, BAR_Y, w, BTN_H, COLOR_DISPLAY_TEXT);
-    gfx->drawRect(x + 1, BAR_Y + 1, w - 2, BTN_H - 2, COLOR_DISPLAY_TEXT);
 
     gfx->setTextColor(COLOR_DISPLAY_TEXT);
     gfx->setTextSize(4);
+
     char buf[8];
     snprintf(buf, sizeof(buf), "OCT %d", currentOctave);
-    int textW = strlen(buf) * 6;
-    gfx->setCursor(x + (w - textW) / 2, BAR_Y + (BTN_H - 8) / 2);
+
+    // Dimensiones reales del texto con textSize(4)
+    int textW = strlen(buf) * 24; // 6 px * 4
+    int textH = 32;               // 8 px * 4
+
+    // Centrado en X e Y
+    int textX = x + (w - textW) / 2;
+    int textY = BAR_Y + (BTN_H - textH) / 2;
+
+    gfx->setCursor(textX, textY);
     gfx->print(buf);
 }
 
