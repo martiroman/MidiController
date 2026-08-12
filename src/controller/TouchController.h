@@ -12,17 +12,15 @@ class TouchController {
 public:
     TouchController(TAMC_GT911* touchSensor, ControlsUI* controlsUi, PianoKeyboard* keyboard, UsbMidi* midi);
 
-    void update();
+    uint8_t update();
 
 private:
     static int mapTouchX(int tx);
     static int mapTouchY(int ty);
-    void handleScreenTouch(int tx, int ty);
-    void releaseCurrentNote();
+    uint8_t handleScreenTouch(int tx, int ty);
 
     TAMC_GT911* touchSensor;
     ControlsUI* controlsUi;
     PianoKeyboard* keyboard;
     UsbMidi* midi;
-    int lastNoteTouched = -1;
 };

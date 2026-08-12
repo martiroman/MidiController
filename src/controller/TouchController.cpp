@@ -15,7 +15,7 @@ int TouchController::mapTouchY(int ty) {
 }
 
 // Updates the touch controller state, handling touch input and MIDI note events.
-void TouchController::update() {
+uint8_t TouchController::update() {
     touchSensor->read();
 
     if (touchSensor->isTouched) {
@@ -24,51 +24,34 @@ void TouchController::update() {
         int tx = mapTouchX(rawX);
         int ty = mapTouchY(rawY);
 
-        handleScreenTouch(tx, ty);
-        return;
-    }
+        // Debug: imprimir coordenadas de toque en el monitor serial
+        Serial.print("Touch tx: ");
+        Serial.print(tx);
+        Serial.print("  ty: ");
+        Serial.println(ty);
 
-    releaseCurrentNote();
+        return handleScreenTouch(tx, ty);
+    }
+    return 0;
 }
 
-void TouchController::handleScreenTouch(int tx, int ty) {
+uint8_t TouchController::handleScreenTouch(int tx, int ty) {
     
     // Check if the touch is within the top control bar area
     if (ty <= Config::BAR_HEIGHT && tx >= 0 && tx <= Config::SCREEN_WIDTH) {
-        if (controlsUi->handleTouch(tx, ty)) {
-            releaseCurrentNote();
-        }
-        return;
+        return controlsUi->handleTouch(tx, ty);
     }
 
     // Check if the touch is within the piano keyboard area
-    uint8_t noteDetected = -1;
     if (ty < Config::KEY_Y_OFFSET || ty > Config::KEY_Y_OFFSET + Config::WHITE_KEY_HEIGHT) {
-        noteDetected = keyboard->handleTouch(tx, ty);
-    }
-
-    // If a note is detected, handle MIDI note-on and note-off events accordingly
-    if (noteDetected != -1) {   
-        if (noteDetected == lastNoteTouched) {
-            return;
-        }
-
-        if (lastNoteTouched != -1) {
-            midi->noteOff(1, lastNoteTouched, 0);
-        }
-
+        uint8_t noteDetected = keyboard->handleTouch(tx, ty);
         midi->noteOn(1, noteDetected, 127);
-        lastNoteTouched = noteDetected;
-    }
-    return;
-}
 
-// Releases the currently pressed MIDI note, if any, by sending a note-off message and resetting the last touched note index.
-void TouchController::releaseCurrentNote() {
-    if (lastNoteTouched == -1) {
-        return;
+        
+        //midi->noteOff(1, lastNoteTouched, 0);
+
+        return noteDetected;
     }
 
-    midi->noteOff(1, lastNoteTouched, 0);
-    lastNoteTouched = -1;
+    return 0;
 }

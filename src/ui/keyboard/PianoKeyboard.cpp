@@ -1,5 +1,6 @@
 #include "PianoKeyboard.h"
 #include "Notes.h"
+#include "../../shared/hardware.h"
 
 PianoKeyboard::PianoKeyboard() = default;
 
@@ -22,11 +23,13 @@ uint8_t PianoKeyboard::handleTouch(int tx, int ty) {
     }
 
     if (ty >= Config::KEY_Y_OFFSET && ty <= Config::KEY_Y_OFFSET + Config::BLACK_KEY_HEIGHT + 15) {
-        int note = hitBlackKey(tx);
+        uint8_t note = getMidiNote(hitBlackKey(tx), 4);
         if (note != -1) return note;
     }
 
     uint8_t midiNote = getMidiNote(hitWhiteKey(tx), 4);
+    lastNotePlayed = midiNote;
+    
     return midiNote;
 }
 

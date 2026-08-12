@@ -39,5 +39,6 @@ void loop() {
     ArduinoOTA.handle();
     midi.update();
     touchController.update();
+    
     delay(10); // Estabilidad para los rebotes del touch
 }
