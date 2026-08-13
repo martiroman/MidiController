@@ -3,24 +3,20 @@
 #include <Arduino.h>
 #include <TAMC_GT911.h>
 #include "UsbMidi.h"
-#include "../ui/keyboard/PianoKeyboard.h"
-#include "../ui/controls/Controls.h"
 #include "../config/Config.h"
-
+#include "../ui/IUIScreen.h"
 
 class TouchController {
 public:
-    TouchController(TAMC_GT911* touchSensor, ControlsUI* controlsUi, PianoKeyboard* keyboard, UsbMidi* midi);
-
+    TouchController();    
     uint8_t update();
+    void begin();
 
 private:
-    static int mapTouchX(int tx);
-    static int mapTouchY(int ty);
-    uint8_t handleScreenTouch(int tx, int ty);
+    static int mapTouchX(int);
+    static int mapTouchY(int);
+    uint8_t handleScreenTouch(int, int);
 
-    TAMC_GT911* touchSensor;
-    ControlsUI* controlsUi;
-    PianoKeyboard* keyboard;
-    UsbMidi* midi;
+    TAMC_GT911 touchSensor;
+    IUIScreen* screen;
 };

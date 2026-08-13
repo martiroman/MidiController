@@ -6,8 +6,8 @@
 
 #include <Arduino.h>
 #include <Arduino_GFX_Library.h>
-#include "../../config/Config.h"       
-#include "../IUIComponent.h"
+#include "../../../config/Config.h"       
+#include "../../IUIComponent.h"
 
 // Top bar UI controls for record/play/octave buttons and display
 

@@ -1,3 +1,5 @@
+#include "../IUIScreen.h"
+
 #define RETRO_RED      0xF800
 #define RETRO_GREEN    0x07E0
 #define RETRO_BLUE     0x001F
@@ -7,6 +9,18 @@
 #define RETRO_ORANGE   0xFD20
 #define RETRO_PURPLE   0x780F
 
+
+class IntroScreen : public IUIScreen {
+public:
+    IntroScreen();
+    void draw(Arduino_RGB_Display*);
+    uint8_t handleTouch(int tx, int ty) override {
+        // Handle touch events on the intro screen here
+        return 0; // Return a value indicating the result of the touch event
+    }
+};
+
+    /*
 // --- Melodia Mario Bros ---
 struct Note {
   int note;
@@ -73,3 +87,4 @@ void intro(UsbMidi& midi, Arduino_RGB_Display* gfx) {
 
   delay(2000);
 }
+  */

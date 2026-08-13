@@ -3,7 +3,6 @@
 #include <ArduinoOTA.h>
 #include <Wire.h>
 #include <Arduino_GFX_Library.h>
-#include <TAMC_GT911.h>
 #include <usb/usb_host.h>
 #include "../config/Config.h"
 

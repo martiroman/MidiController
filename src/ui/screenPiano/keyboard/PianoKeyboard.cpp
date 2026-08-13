@@ -1,6 +1,8 @@
 #include "PianoKeyboard.h"
 #include "Notes.h"
-#include "../../shared/hardware.h"
+#include "../../../shared/hardware.h"
+#include "../../Config.h"
+#include "../../../config/Colors.h"
 
 PianoKeyboard::PianoKeyboard() = default;
 

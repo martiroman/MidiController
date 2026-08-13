@@ -5,9 +5,7 @@
 #pragma once
 #include <Arduino.h>
 #include <Arduino_GFX_Library.h>
-#include "../IUIComponent.h"
-#include "../../config/Config.h"
-#include "../../config/Colors.h"
+#include "../../IUIComponent.h"
 
 class PianoKeyboard : public IUIComponent {
 public:
