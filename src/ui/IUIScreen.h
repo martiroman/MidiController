@@ -1,3 +1,5 @@
+#pragma once
+
 #include <Arduino_GFX_Library.h>
 
 class IUIScreen {

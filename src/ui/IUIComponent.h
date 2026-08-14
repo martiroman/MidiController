@@ -1,7 +1,7 @@
 #pragma once
 #include <Arduino.h>
 #include <Arduino_GFX_Library.h>
-#include "../config/Colors.h"
+#include "Colors.h"
 
 class IUIComponent {
 public:

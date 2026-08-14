@@ -1,5 +1,9 @@
 #include "introScreen.h"
 
+IntroScreen::IntroScreen(){
+
+}
+
 void IntroScreen::draw(Arduino_RGB_Display* gfx) {
 // Draw the intro screen graphics here
     gfx->fillScreen(BLACK);

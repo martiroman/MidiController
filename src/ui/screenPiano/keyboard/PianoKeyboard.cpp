@@ -2,7 +2,7 @@
 #include "Notes.h"
 #include "../../../shared/hardware.h"
 #include "../../Config.h"
-#include "../../../config/Colors.h"
+#include "../../Colors.h"
 
 PianoKeyboard::PianoKeyboard() = default;
 
