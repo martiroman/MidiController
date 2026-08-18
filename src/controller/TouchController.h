@@ -3,7 +3,6 @@
 #include <Arduino.h>
 #include <TAMC_GT911.h>
 #include "UsbMidi.h"
-#include "../config/Config.h"
 #include "../ui/IUIScreen.h"
 
 class TouchController {
@@ -13,8 +12,11 @@ public:
     void begin();
 
 private:
-    static int mapTouchX(int);
-    static int mapTouchY(int);
+    int w = 0;
+    int h = 0;
+
+    int mapTouchX(int);
+    int mapTouchY(int);
     uint8_t handleScreenTouch(int, int);
 
     TAMC_GT911 touchSensor;

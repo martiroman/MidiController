@@ -1,7 +1,10 @@
 #include "controls.h"
+#include "../UIConfig.h"
+
+using namespace UIConfig;
 
 void ControlsUI::draw(Arduino_RGB_Display* gfx) {
-    gfx->fillRect(0, 0, Config::SCREEN_WIDTH, Config::BAR_HEIGHT, COLOR_BAR_BG);
+    gfx->fillRect(0, 0, SCREEN_WIDTH, BAR_HEIGHT, COLOR_BAR_BG);
 
     drawPixelButton(gfx, rectRec,
         isRecording ? "STOP" : "REC",
@@ -38,7 +41,7 @@ void ControlsUI::drawPixelButton(Arduino_RGB_Display* gfx,
                                  uint16_t faceColor,
                                  uint16_t shadowColor)
 {
-    gfx->fillRect(r.x, r.y + r.h, r.w, Config::BTN_SHADOW, shadowColor);
+    gfx->fillRect(r.x, r.y + r.h, r.w, BTN_SHADOW, shadowColor);
     gfx->fillRect(r.x, r.y, r.w, r.h, faceColor);
     //gfx->drawRect(r.x, r.y, r.w, r.h + BTN_SHADOW, COLOR_BTN_SHADOW);
 
@@ -56,7 +59,7 @@ void ControlsUI::drawOctaveDisplay(Arduino_RGB_Display* gfx) {
     int x = rectOctDn.x + rectOctDn.w + 4;
     int w = rectOctUp.x - x - 4;
 
-    gfx->fillRect(x, Config::BAR_Y, w, Config::BTN_H, COLOR_DISPLAY_BG);
+    gfx->fillRect(x, BAR_Y, w, BTN_H, COLOR_DISPLAY_BG);
 
     gfx->setTextColor(COLOR_DISPLAY_TEXT);
     gfx->setTextSize(4);
@@ -70,7 +73,7 @@ void ControlsUI::drawOctaveDisplay(Arduino_RGB_Display* gfx) {
 
     // Centrado en X e Y
     int textX = x + (w - textW) / 2;
-    int textY = Config::BAR_Y + (Config::BTN_H - textH) / 2;
+    int textY = BAR_Y + (BTN_H - textH) / 2;
 
     gfx->setCursor(textX, textY);
     gfx->print(buf);

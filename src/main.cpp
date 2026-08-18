@@ -1,5 +1,6 @@
 #include <Arduino.h>
-#include "shared/hardware.h"
+#include "shared/CH422G.h"
+#include "shared/WifiOTA.h"
 #include "controller/UIController.h"
 #include "controller/TouchController.h"
 #include "controller/MidiController.h"
@@ -10,14 +11,13 @@ UIController uiController;
 TouchController touchController;
 
 void setup() {
-    Serial.begin(115200);
-    init_wifi_ota(); //begin() is called inside init_wifi_ota()
-    Wire.begin(8, 9);
-    
+    //Serial.begin(115200);
+    initWifiOTA();
+    initWire();
+
     midiController.begin();
     touchController.begin();
     uiController.begin();
-
 
     String ipStr = (WiFi.status() == WL_CONNECTED) ? "WIFI Connected | IP: " + WiFi.localIP().toString() : "WIFI not connected";    
     uiController.debugMsg(ipStr.c_str(), WHITE);

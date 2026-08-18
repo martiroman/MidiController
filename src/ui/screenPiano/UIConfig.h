@@ -1,11 +1,6 @@
 #pragma once
 
-// CH422G Energy Control
-#define CH422G_I2C_ADDR 0x24
-#define CH422G_REG_MODE 0x01
-#define CH422G_REG_OUT  0x02
-
-namespace Config {
+namespace UIConfig {
     constexpr const int SCREEN_WIDTH    = 800;
     constexpr const int SCREEN_HEIGHT   = 480;
     constexpr const int TOP_BAR_HEIGHT  = 110;

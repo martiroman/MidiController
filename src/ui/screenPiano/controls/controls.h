@@ -5,9 +5,11 @@
 #pragma once
 
 #include <Arduino.h>
-#include <Arduino_GFX_Library.h>
-#include "../../../config/Config.h"       
+#include <Arduino_GFX_Library.h>       
 #include "../../IUIComponent.h"
+#include "../UIConfig.h"
+
+using namespace UIConfig;
 
 // Top bar UI controls for record/play/octave buttons and display
 
@@ -22,10 +24,10 @@ public:
         int x, y, w, h;
     };
 
-    Rect rectRec = {10, Config::BAR_Y, 130, Config::BTN_H};
-    Rect rectPlay = {150, Config::BAR_Y, 130, Config::BTN_H};
-    Rect rectOctDn = {300, Config::BAR_Y, 36, Config::BTN_H};
-    Rect rectOctUp = {500, Config::BAR_Y, 36, Config::BTN_H};
+    Rect rectRec = {10, BAR_Y, 130, BTN_H};
+    Rect rectPlay = {150, BAR_Y, 130, BTN_H};
+    Rect rectOctDn = {300, BAR_Y, 36, BTN_H};
+    Rect rectOctUp = {500, BAR_Y, 36, BTN_H};
 
     void draw(Arduino_RGB_Display* gfx);
     uint8_t handleTouch(int tx, int ty);

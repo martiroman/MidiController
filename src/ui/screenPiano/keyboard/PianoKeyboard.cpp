@@ -1,8 +1,9 @@
 #include "PianoKeyboard.h"
 #include "Notes.h"
-#include "../../../shared/hardware.h"
-#include "../../Config.h"
+#include "../UIConfig.h"
 #include "../../Colors.h"
+
+using namespace UIConfig;
 
 PianoKeyboard::PianoKeyboard() = default;
 
@@ -20,11 +21,11 @@ void PianoKeyboard::draw(Arduino_RGB_Display* gfx) {
 }
 
 uint8_t PianoKeyboard::handleTouch(int tx, int ty) {
-    if (ty < Config::KEY_Y_OFFSET || ty > Config::KEY_Y_OFFSET + Config::WHITE_KEY_HEIGHT) {
+    if (ty < KEY_Y_OFFSET || ty > KEY_Y_OFFSET + WHITE_KEY_HEIGHT) {
         return -1;
     }
 
-    if (ty >= Config::KEY_Y_OFFSET && ty <= Config::KEY_Y_OFFSET + Config::BLACK_KEY_HEIGHT + 15) {
+    if (ty >= KEY_Y_OFFSET && ty <= KEY_Y_OFFSET + BLACK_KEY_HEIGHT + 15) {
         uint8_t note = getMidiNote(hitBlackKey(tx), 4);
         if (note != -1) return note;
     }
@@ -36,8 +37,8 @@ uint8_t PianoKeyboard::handleTouch(int tx, int ty) {
 }
 
 bool PianoKeyboard::isBlackKey(int index) const {
-    for (int i = 0; i < Config::BLACK_KEY_COUNT; i++) {
-        if (Config::BLACK_KEY_INDICES[i] == index) return true;
+    for (int i = 0; i < BLACK_KEY_COUNT; i++) {
+        if (BLACK_KEY_INDICES[i] == index) return true;
     }
     return false;
 }
@@ -47,12 +48,12 @@ void PianoKeyboard::drawWhiteKeys(Arduino_RGB_Display* gfx) {
     for (int i = 0; i < 13; i++) {
         if (isBlackKey(i)) continue;
 
-        int x = whiteIdx * Config::WHITE_KEY_WIDTH;
-        int y = Config::KEY_Y_OFFSET;
+        int x = whiteIdx * WHITE_KEY_WIDTH;
+        int y = KEY_Y_OFFSET;
 
-        gfx->fillRect(x, y, Config::WHITE_KEY_WIDTH, Config::WHITE_KEY_HEIGHT, COLOR_WHITE_KEY);
-        gfx->drawRect(x, y, Config::WHITE_KEY_WIDTH, Config::WHITE_KEY_HEIGHT, COLOR_BORDER);
-        gfx->drawRect(x + 1, y + 1, Config::WHITE_KEY_WIDTH - 2, Config::WHITE_KEY_HEIGHT - 2, COLOR_BORDER);
+        gfx->fillRect(x, y, WHITE_KEY_WIDTH, WHITE_KEY_HEIGHT, COLOR_WHITE_KEY);
+        gfx->drawRect(x, y, WHITE_KEY_WIDTH, WHITE_KEY_HEIGHT, COLOR_BORDER);
+        gfx->drawRect(x + 1, y + 1, WHITE_KEY_WIDTH - 2, WHITE_KEY_HEIGHT - 2, COLOR_BORDER);
 
         whiteIdx++;
     }
@@ -66,12 +67,12 @@ void PianoKeyboard::drawBlackKeys(Arduino_RGB_Display* gfx) {
             continue;
         }
 
-        int x = (whiteIdx * Config::WHITE_KEY_WIDTH) - (Config::BLACK_KEY_WIDTH / 2);
-        int y = Config::KEY_Y_OFFSET;
+        int x = (whiteIdx * WHITE_KEY_WIDTH) - (BLACK_KEY_WIDTH / 2);
+        int y = KEY_Y_OFFSET;
 
-        gfx->fillRect(x, y, Config::BLACK_KEY_WIDTH, Config::BLACK_KEY_HEIGHT, COLOR_BLACK_KEY);
-        gfx->drawRect(x, y, Config::BLACK_KEY_WIDTH, Config::BLACK_KEY_HEIGHT, COLOR_BORDER);
-        gfx->drawRect(x + 1, y + 1, Config::BLACK_KEY_WIDTH - 2, Config::BLACK_KEY_HEIGHT - 2, COLOR_BORDER);
+        gfx->fillRect(x, y, BLACK_KEY_WIDTH, BLACK_KEY_HEIGHT, COLOR_BLACK_KEY);
+        gfx->drawRect(x, y, BLACK_KEY_WIDTH, BLACK_KEY_HEIGHT, COLOR_BORDER);
+        gfx->drawRect(x + 1, y + 1, BLACK_KEY_WIDTH - 2, BLACK_KEY_HEIGHT - 2, COLOR_BORDER);
     }
 }
 
@@ -82,8 +83,8 @@ int PianoKeyboard::hitBlackKey(int tx) const {
             whiteIdx++;
             continue;
         }
-        int keyX = (whiteIdx * Config::WHITE_KEY_WIDTH) - (Config::BLACK_KEY_WIDTH / 2);
-        if (tx >= keyX && tx <= keyX + Config::BLACK_KEY_WIDTH) {
+        int keyX = (whiteIdx * WHITE_KEY_WIDTH) - (BLACK_KEY_WIDTH / 2);
+        if (tx >= keyX && tx <= keyX + BLACK_KEY_WIDTH) {
             return i; // MIDI index: 1, 3, 6, 8, or 10
         }
     }
@@ -93,8 +94,8 @@ int PianoKeyboard::hitBlackKey(int tx) const {
 int PianoKeyboard::hitWhiteKey(int tx) const {
     static const int WHITE_KEY_MAP[] = {0, 2, 4, 5, 7, 9, 11, 12}; // C D E F G A B C
 
-    int col = tx / Config::WHITE_KEY_WIDTH;
-    if (col >= Config::WHITE_KEY_COUNT) col = Config::WHITE_KEY_COUNT - 1;
+    int col = tx / WHITE_KEY_WIDTH;
+    if (col >= WHITE_KEY_COUNT) col = WHITE_KEY_COUNT - 1;
     return WHITE_KEY_MAP[col];
 }
 

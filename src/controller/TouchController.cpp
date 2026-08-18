@@ -1,6 +1,4 @@
 #include "TouchController.h"
-#include "../config/Config.h"
-#include "../shared/hardware.h"
 
 // Constructor for the TouchController class, initializing the touch sensor, controls UI, piano keyboard, and MIDI interface.
 TouchController::TouchController()
@@ -8,19 +6,20 @@ TouchController::TouchController()
     }
 
 void TouchController::begin() {
+    
     touchSensor.begin();
-    touchSensor.setResolution(Config::SCREEN_WIDTH, Config::SCREEN_HEIGHT);
+    touchSensor.setResolution(screen->width, screen->height);
     touchSensor.setRotation(0);
 }
 
 // Maps the raw touch X coordinate to the screen coordinate system.
 int TouchController::mapTouchX(int tx) {
-    return Config::SCREEN_WIDTH - tx;
+    return screen->width - tx;
 }
 
 // Maps the raw touch Y coordinate to the screen coordinate system.
 int TouchController::mapTouchY(int ty) {
-    return Config::SCREEN_HEIGHT - ty;
+    return screen->height - ty;
 }
 
 // Updates the touch controller state, handling touch input and MIDI note events.
