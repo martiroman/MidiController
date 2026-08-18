@@ -11,16 +11,35 @@ UIController uiController;
 TouchController touchController;
 
 void setup() {
-    //Serial.begin(115200);
-    initWifiOTA();
+    Serial.begin(115200);
+
+    delay(10000);
+
+    Serial.println("=== Iniciando WiFi ===");
+    String wifiStatus = initWifiOTA();
+    Serial.println(wifiStatus.c_str());
+    Serial.flush();
+    delay(10000);
+
+    Serial.println("=== Iniciando Wire ===");
     initWire();
+    Serial.println("Wire OK");
+    Serial.flush();
+    delay(10000);
 
-    midiController.begin();
-    touchController.begin();
+    Serial.println("=== Iniciando UI ===");
+    Serial.flush();
     uiController.begin();
+    delay(5000);
+    Serial.println("=== Iniciando MIDI ===");
+    Serial.flush();
+    midiController.begin();
+    delay(5000);
+    Serial.println("=== Iniciando Touch ===");
+    Serial.flush();
+    touchController.begin();
 
-    String ipStr = (WiFi.status() == WL_CONNECTED) ? "WIFI Connected | IP: " + WiFi.localIP().toString() : "WIFI not connected";    
-    uiController.debugMsg(ipStr.c_str(), WHITE);
+    uiController.debugMsg(wifiStatus.c_str(), WHITE);
     
     delay(2000);
     

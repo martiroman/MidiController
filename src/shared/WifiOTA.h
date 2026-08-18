@@ -3,12 +3,16 @@
 #include <ArduinoOTA.h>
 #include "../config/WifiCfg.h"
 
+using namespace WifiConfig;
 
-inline void initWifiOTA() {
+inline String initWifiOTA() {
     WiFi.mode(WIFI_STA);
-    WiFi.begin(WifiConfig::SSID, WifiConfig::PASS);
-    while (WiFi.status() != WL_CONNECTED) { delay(500); }
+    WiFi.begin(SSID, PASS);
+    //while (WiFi.status() != WL_CONNECTED) { delay(500); }
     
-    ArduinoOTA.setHostname(WifiConfig::HOST);
+    ArduinoOTA.setHostname(HOST);
     ArduinoOTA.begin();
+
+    String statusRes = (WiFi.status() == WL_CONNECTED) ? "WIFI Connected | IP: " + WiFi.localIP().toString() : "WIFI not connected";
+    return statusRes;
 }
