@@ -75,13 +75,6 @@ pio device monitor -b 115200
 
 4. OTA: el firmware inicializa OTA si hay WiFi configurado. Revisa la función `init_wifi_ota()` en [src/shared/hardware.h](src/shared/hardware.h#L1) para ajustar SSID/password.
 
-**Estructura del repositorio**
-- [platformio.ini](platformio.ini#L1): configuración de PlatformIO y entornos.
-- [src/main.cpp](src/main.cpp#L1): entrada principal del programa.
-- [src/shared/hardware.h](src/shared/hardware.h#L1): inicialización de pantalla, WiFi/OTA y utilidades de hardware.
-- [src/controller/TouchController.cpp](src/controller/TouchController.cpp#L1): lógica del controlador táctil.
-- [src/ui/keyboard/PianoKeyboard.cpp](src/ui/keyboard/PianoKeyboard.cpp#L1): implementación del teclado/piano UI.
-- [src/config/Config.h](src/config/Config.h#L1): parámetros de configuración del proyecto.
 
 **Consejos de seguridad y buenas prácticas**
 - Usa siempre aislamiento para conexiones MIDI DIN (optoacoplador).
