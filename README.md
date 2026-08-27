@@ -31,10 +31,10 @@ Proyecto de controlador MIDI basado en ESP32-S3 pensado para interactuar con sin
 - 1x Convertidor MIDI DIN optoaislado (si vas a usar MIDI DIN tradicional).
 
 **Conexiones / Wiring (guía)**
-Nota: el proyecto está pensado para usarse con la configuración por defecto en `src/shared/hardware.h`. Revisa ese archivo para los detalles del inicializador de pantalla y los pines utilizados.
+Nota: el proyecto está pensado para usarse con la configuración por defecto. Revisa ese archivo para los detalles del inicializador de pantalla y los pines utilizados.
 
 - Pantalla RGB (Waveshare 4.3"):
-  - Conecta la pantalla según las señales requeridas por el controlador RGB. La inicialización del panel se realiza en [src/shared/hardware.h](src/shared/hardware.h#L1).
+  - Conecta la pantalla según las señales requeridas por el controlador RGB. 
 
 - Táctil (GT911):
   - El GT911 usa I2C. Conecta SDA/SCL a los pines I2C del ESP32-S3 (configuración por defecto en el proyecto). Wire/I2C se inicializa en el firmware.
@@ -53,12 +53,6 @@ Ejemplo de topologías posibles:
 - Conexión hardware MIDI (DIN/TRS):
   - Teclado/Módulo MIDI -> MIDI DIN -> circuito optoaislador -> UART RX del ESP32 (con el protocolo MIDI en UART a 31250 bps) o usa una interfaz dedicada.
 
-**Mapeo de pines y referencias**
-- La inicialización del panel y pines relevantes está en [src/shared/hardware.h](src/shared/hardware.h#L1).
-- El controlador táctil y la lógica de interacción se encuentran en [src/controller/TouchController.cpp](src/controller/TouchController.cpp#L1) y [src/controller/TouchController.h](src/controller/TouchController.h#L1).
-- La UI del teclado/piano está en [src/ui/keyboard/PianoKeyboard.cpp](src/ui/keyboard/PianoKeyboard.cpp#L1) y [src/ui/keyboard/PianoKeyboard.h](src/ui/keyboard/PianoKeyboard.h#L1).
-- El punto de entrada del firmware es [src/main.cpp](src/main.cpp#L1).
-
 **Software: compilar y subir (PlatformIO)**
 1. Instala PlatformIO (VSCode PlatformIO extension) o usa la CLI `pio`.
 2. Compilar y subir al target (ejemplo usando el entorno definido en `platformio.ini`):
@@ -73,7 +67,7 @@ pio run -e esp32-s3-43-waveshare -t upload
 pio device monitor -b 115200
 ```
 
-4. OTA: el firmware inicializa OTA si hay WiFi configurado. Revisa la función `init_wifi_ota()` en [src/shared/hardware.h](src/shared/hardware.h#L1) para ajustar SSID/password.
+4. OTA: el firmware inicializa OTA si hay WiFi configurado. Revisa la configuración para ajustar SSID/password.
 
 
 **Consejos de seguridad y buenas prácticas**
