@@ -1,0 +1,16 @@
+#pragma once
+
+#include "IController.h"
+#include "UsbMidi.h"
+
+class MidiController : IController{
+    private:
+        UsbMidi midi;
+
+    public:
+        MidiController();
+        void begin();
+        void update();
+        void noteOn(uint8_t note, uint8_t velocity);
+        void noteOff(uint8_t note, uint8_t velocity);
+};
