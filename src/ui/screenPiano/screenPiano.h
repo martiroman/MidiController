@@ -3,6 +3,7 @@
 #include "keyboard/PianoKeyboard.h"
 #include "controls/Controls.h"
 #include "../IUIScreen.h"
+#include "../UIEvent.h"
 
 class ScreenPiano : public IUIScreen {
     private:
@@ -12,6 +13,6 @@ class ScreenPiano : public IUIScreen {
     public:
         ScreenPiano();
         ~ScreenPiano();
-        uint8_t handleTouch(int, int);
+        UIEvent handleTouch(int, int);
         void draw(Arduino_RGB_Display*);
 };

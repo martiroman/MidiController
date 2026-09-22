@@ -23,41 +23,19 @@ void UIController::drawCurrentScreen(){
     }
 }
 
-void UIController::showPianoScreen() {
-    if (!pianoScreen) {
-        Serial.println("showPianoScreen(): pianoScreen no inicializado");
-        return;
+UIEvent UIController::handleTouch(int tx, int ty) {
+    if (!currentScreen) return { EventType::NONE, 0 , 0 };
+
+    UIEvent event = currentScreen->handleTouch(tx, ty);
+   
+    if (event.type == EventType::START_PRESSED) {
+        currentScreen = pianoScreen;
+        drawCurrentScreen();
     }
-    currentScreen = pianoScreen;
-    drawCurrentScreen();
+
+    return event;
 }
 
-uint8_t UIController::handleTouch(int tx, int ty) {
-    if (!currentScreen) return 0;
-
-    uint8_t result = currentScreen->handleTouch(tx, ty);
-
-    // Desde el intro, cualquier toque avanza al teclado
-    if (currentScreen == introScreen && result == IntroScreen::START_PRESSED) {
-        showPianoScreen();
-        return result;
-    }
-
-    // En el teclado, ty > BAR_HEIGHT es la zona de teclas: result es la nota MIDI
-    if (currentScreen == pianoScreen && ty > BAR_HEIGHT &&
-        result != NO_NOTE && result != lastDebugNote) {
-        lastDebugNote = result;
-
-        char buf[24];
-        snprintf(buf, sizeof(buf), "%s (%u)", NOTE_NAMES[result % 12], result);
-        debugMsg(buf, RETRO_GREEN);
-    }
-
-    return result;
-}
-
-// Escribe siempre en el mismo recuadro: borra el mensaje anterior y lo reemplaza,
-// asi no avanza de linea ni necesita limpiar la pantalla entera.
 void UIController::debugMsg(const char* msg, uint16_t color){
     Serial.println(msg);
 

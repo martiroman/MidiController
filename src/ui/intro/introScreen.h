@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../IUIScreen.h"
+#include "../UIEvent.h"
 
 #define RETRO_RED      0xF800
 #define RETRO_GREEN    0x07E0
@@ -19,8 +20,8 @@ public:
     // Cualquier toque en el intro equivale a "START"
     static constexpr uint8_t START_PRESSED = 1;
 
-    uint8_t handleTouch(int tx, int ty) override {
-        return START_PRESSED;
+    UIEvent handleTouch(int tx, int ty) override {
+        return { EventType::START_PRESSED, 0, 0 };
     }
 };
 

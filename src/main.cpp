@@ -1,14 +1,13 @@
 #include <Arduino.h>
 #include "shared/CH422G.h"
 #include "shared/WifiOTA.h"
+#include "controller/AppController.h"
 #include "controller/UIController.h"
 #include "controller/TouchController.h"
 #include "controller/MidiController.h"
 
 // Global objects
-MidiController midiController;
-UIController uiController;
-TouchController touchController;
+AppController appController;
 
 void setup() {
     Serial.begin(115200);
@@ -23,28 +22,12 @@ void setup() {
     Serial.println("Wire OK");
     Serial.flush();
 
-    Serial.println("=== Iniciando UI ===");
-    Serial.flush();
-    uiController.begin();
-
-    Serial.println("=== Iniciando MIDI ===");
-    Serial.flush();
-    midiController.begin();
-    Serial.println("=== Iniciando Touch ===");
-    Serial.flush();
-    touchController.setUIController(&uiController);
-    touchController.setMidiController(&midiController);
-    touchController.begin();
-
-    uiController.debugMsg(wifiStatus.c_str(), WHITE);
-        
-    uiController.drawCurrentScreen();
+    appController.begin();
 }
 
 void loop() {
     ArduinoOTA.handle();
-    midiController.update();
-    touchController.update();
-    
+    appController.update();
+
     delay(10); // Estabilidad para los rebotes del touch
 }

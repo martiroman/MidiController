@@ -4,26 +4,21 @@
 #include <TAMC_GT911.h>
 #include "UsbMidi.h"
 
-class UIController;   // se resuelve en el .cpp, evita dependencia circular
-class MidiController;
-
 class TouchController {
 public:
     TouchController();
-    uint8_t update();
+    void update();
     void begin();
-    void setUIController(UIController* controller);
-    void setMidiController(MidiController* controller);
-
+    void getTouchCoordinates(int&, int&);
+    bool isTouchActive();
+    
 private:
     int w = 0;
     int h = 0;
 
-    int mapTouchX(int);
-    int mapTouchY(int);
+    int x = 0;
+    int y = 0;
+    bool isTouched = false;
 
     TAMC_GT911 touchSensor;
-    UIController* ui = nullptr;
-    MidiController* midi = nullptr;
-    int activeNote = -1;
 };

@@ -4,6 +4,7 @@
 #include "../ui/intro/introScreen.h"
 #include "../ui/screenPiano/screenPiano.h"
 #include "IController.h"
+#include "../ui/UIEvent.h"
 
 class UIController : IController {
     private:
@@ -13,8 +14,6 @@ class UIController : IController {
         IntroScreen* introScreen;
         ScreenPiano* pianoScreen;
 
-        int lastDebugNote = -1;   // evita redibujar el recuadro en cada ciclo
-
     public:
         UIController();
         ~UIController();
@@ -22,9 +21,8 @@ class UIController : IController {
         void begin();
         void update();
         void drawCurrentScreen();
-        void showPianoScreen();
-        bool isPianoScreen() const { return currentScreen == pianoScreen; }
+
         IUIScreen* getCurrentScreen() { return currentScreen; }
         void debugMsg(const char* msg, uint16_t color = WHITE);
-        uint8_t handleTouch(int, int);
+        UIEvent handleTouch(int, int);
 };
