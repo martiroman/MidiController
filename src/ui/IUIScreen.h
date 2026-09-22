@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Arduino_GFX_Library.h>
+#include "UIEvent.h"
 
 class IUIScreen {
 public:
