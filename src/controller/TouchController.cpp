@@ -37,3 +37,8 @@ void TouchController::update() {
 bool TouchController::isTouchActive() {
     return isTouched;
 }
+
+void TouchController::getTouchCoordinates(int& outX, int& outY) {
+    outX = x;
+    outY = y;
+}

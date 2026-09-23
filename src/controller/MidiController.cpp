@@ -22,3 +22,7 @@ void MidiController::noteOff(uint8_t velocity) {
         activeNote = -1;
     }
 }
+
+void MidiController::sendControlChange(uint8_t control, uint8_t value) {
+    midi.controlChange(1, control, value);
+}

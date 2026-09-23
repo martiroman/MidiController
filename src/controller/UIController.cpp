@@ -59,8 +59,12 @@ void UIController::begin(){
     gfx->fillScreen(BLACK);
 
     pianoScreen = new ScreenPiano();
+    drawCurrentScreen();
 }
 
 void UIController::update(){
-    
+    if (!gfx || !currentScreen) return;
+
+    // Redibuja solo la pantalla activa para mantener la UI visible tras cambios.
+    drawCurrentScreen();
 }
