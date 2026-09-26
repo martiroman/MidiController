@@ -1,6 +1,7 @@
 #include "screenPiano.h"
 #include "UIConfig.h"
 #include "../UIEvent.h"
+#include "../Colors.h"
 
 using namespace UIConfig;
 
@@ -17,8 +18,9 @@ ScreenPiano::~ScreenPiano() {
 }
 
 void ScreenPiano::draw(Arduino_RGB_Display* gfx) {
-    controlsUi->draw(gfx);
+    gfx->fillScreen(COLOR_BACKGROUND);
     keyboard->draw(gfx);
+    controlsUi->draw(gfx);
 }
 
 UIEvent ScreenPiano::handleTouch(int tx, int ty) {

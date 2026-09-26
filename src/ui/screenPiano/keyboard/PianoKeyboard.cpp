@@ -8,14 +8,6 @@ using namespace UIConfig;
 PianoKeyboard::PianoKeyboard() = default;
 
 void PianoKeyboard::draw(Arduino_RGB_Display* gfx) {
-    gfx->fillScreen(COLOR_BACKGROUND);
-
-    // Header
-    gfx->setTextColor(0xFFFF);
-    gfx->setTextSize(2);
-    gfx->setCursor(10, 10);
-    gfx->print("ESP-8BIT SYNTH");
-
     drawWhiteKeys(gfx);
     drawBlackKeys(gfx);
 }
