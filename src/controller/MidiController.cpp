@@ -14,6 +14,7 @@ void MidiController::update(){
 
 void MidiController::noteOn(uint8_t note, uint8_t velocity) {
     midi.noteOn(1, note, velocity);
+    activeNote = note;
 }
 
 void MidiController::noteOff(uint8_t velocity) {

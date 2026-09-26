@@ -30,6 +30,8 @@ void TouchController::update() {
         isTouched = true;
     } else {
         isTouched = false;
+        x = -1;
+        y = -1;
     }
 
 }

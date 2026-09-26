@@ -6,6 +6,7 @@ enum class EventType {
     START_PRESSED, // Intro screen
     NONE,
     PLAY_NOTE,     // Para el sintetizador / piano
+    NOTE_OFF,      // Para el sintetizador / piano
     CHANGE_SCREEN, // Para navegar entre pantallas
     CC_CHANGE      // Perillas o faders MIDI
 };

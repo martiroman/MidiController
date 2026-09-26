@@ -24,6 +24,10 @@ void ScreenPiano::draw(Arduino_RGB_Display* gfx) {
 UIEvent ScreenPiano::handleTouch(int tx, int ty) {
     UIEvent event = { EventType::NONE, 0, 0 };
 
+    if (tx == -1 && ty == -1) {
+        event = { EventType::NOTE_OFF, 0, 0 };
+    }
+    
     // Check if the touch is within the top control bar area
     if (ty <= BAR_HEIGHT && tx >= 0 && tx <= SCREEN_WIDTH) {
         uint8_t control = controlsUi->handleTouch(tx, ty);        
