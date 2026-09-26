@@ -21,13 +21,11 @@ void AppController::update() {
     
     UIEvent event = uiController.handleTouch(tx, ty); 
     
-    //Mensaje para debuggear eventos en la pantalla
-    uiController.debugMsg(event.toString().c_str(), RED);
-
     // El AppController despacha segun el tipo de evento
     switch (event.type) {
         case EventType::PLAY_NOTE:
             midiController.noteOn(event.data1, 127);
+            uiController.debugMsg(event.toString().c_str(), RED);
             break;
 
         case EventType::NOTE_OFF:
@@ -42,6 +40,6 @@ void AppController::update() {
             break;
     }
 
-    midiController.update();
-    uiController.update();
+    //midiController.update();
+    //uiController.update();
 }

@@ -1,5 +1,5 @@
 #pragma once
-#include <stdint.h>
+#include <Arduino.h>
 
 // tipos de acciones posibles en la UI
 enum class EventType {
@@ -24,10 +24,13 @@ struct UIEvent {
             case EventType::PLAY_NOTE:     typeStr = "PLAY_NOTE"; break;
             case EventType::CHANGE_SCREEN: typeStr = "CHANGE_SCREEN"; break;
             case EventType::CC_CHANGE:     typeStr = "CC_CHANGE"; break;
+            case EventType::START_PRESSED: typeStr = "START_PRESSED"; break;
+            case EventType::NOTE_OFF:      typeStr = "NOTE_OFF"; break;
             default:                       typeStr = "UNKNOWN"; break;
         }
         
-        return "UIEvent { type: " + typeStr + ", data1: " + String(data1) + ", data2: " + String(data2) + " }";
+        //return "UIEvent { type: " + typeStr + ", data1: " + String(data1) + ", data2: " + String(data2) + " }";
+        return String(" ") + typeStr + ": " + String(data1);
     }
     
     UIEvent() : type(EventType::NONE), data1(0), data2(0) {}
