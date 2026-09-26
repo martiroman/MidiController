@@ -13,13 +13,28 @@ void MidiController::update(){
 }
 
 void MidiController::noteOn(uint8_t note, uint8_t velocity) {
-    midi.noteOn(1, note, velocity);
-    activeNote = note;
+    
+    // Misma nota no hace nada
+    if (activeNote == note) {
+        return;
+    }
+
+    // Si hay nota activa, primero la apaga
+    if (activeNote != -1) {
+        if (!midi.noteOff(1, activeNote, 0)) {
+            return;
+        }
+        activeNote = -1;
+    }
+
+    // Nueva nota
+    if (midi.noteOn(1, note, velocity)) {
+        activeNote = note;
+    }
 }
 
 void MidiController::noteOff(uint8_t velocity) {
-    if (activeNote != -1) {
-        midi.noteOff(1, activeNote, velocity);
+    if (activeNote != -1 && midi.noteOff(1, activeNote, velocity)) {
         activeNote = -1;
     }
 }

@@ -27,21 +27,21 @@ UIEvent ScreenPiano::handleTouch(int tx, int ty) {
     if (tx == -1 && ty == -1) {
         event = { EventType::NOTE_OFF, 0, 0 };
     }
-    
-    // Check if the touch is within the top control bar area
-    if (ty <= BAR_HEIGHT && tx >= 0 && tx <= SCREEN_WIDTH) {
-        uint8_t control = controlsUi->handleTouch(tx, ty);        
-        //TODO: Implementar eventos de control
+    else {    
+        // Check if the touch is within the top control bar area
+        if (ty <= BAR_HEIGHT && tx >= 0 && tx <= SCREEN_WIDTH) {
+            uint8_t control = controlsUi->handleTouch(tx, ty);        
+            //TODO: Implementar eventos de control
 
-        //...
+            //...
+        }
+
+        // Check if the touch is within the piano keyboard area
+        if (ty > BAR_HEIGHT && tx >= 0 && tx <= SCREEN_WIDTH) {
+            keyboard->setOctave(controlsUi->currentOctave);
+            uint8_t key = keyboard->handleTouch(tx, ty);
+            event = { EventType::PLAY_NOTE, key, 127 };
+        }
     }
-
-    // Check if the touch is within the piano keyboard area
-    if (ty > BAR_HEIGHT && tx >= 0 && tx <= SCREEN_WIDTH) {
-        keyboard->setOctave(controlsUi->currentOctave);
-        uint8_t key = keyboard->handleTouch(tx, ty);
-        event = { EventType::PLAY_NOTE, key, 127 };
-    }
-
     return event;
 }

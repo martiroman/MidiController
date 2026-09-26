@@ -29,7 +29,7 @@ void AppController::update() {
             break;
 
         case EventType::NOTE_OFF:
-            midiController.noteOff(0);
+            midiController.noteOff(127);
             break;
             
         case EventType::CC_CHANGE:
@@ -40,6 +40,5 @@ void AppController::update() {
             break;
     }
 
-    //midiController.update();
-    //uiController.update();
+    midiController.update();
 }
