@@ -8,11 +8,11 @@
 
 class UIController : IController {
     private:
-        IUIScreen* currentScreen;
-        Arduino_RGB_Display* gfx;
+        IUIScreen* currentScreen = nullptr;
+        Arduino_RGB_Display* gfx = nullptr;
 
-        IntroScreen* introScreen;
-        ScreenPiano* pianoScreen;
+        IntroScreen* introScreen = nullptr;
+        ScreenPiano* pianoScreen = nullptr;
 
     public:
         UIController();

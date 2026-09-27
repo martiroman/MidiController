@@ -99,39 +99,3 @@ int PianoKeyboard::hitWhiteKey(int tx) const {
     return WHITE_KEY_MAP[col];
 }
 
-void PianoKeyboard::drawControlPanel(Arduino_RGB_Display* gfx) {
-    int btnWidth = 80;
-    int btnHeight = 60;
-    int spacing = 16;
-
-    int panelY = 35;
-    int octavaActual = 1;
-    int btnMinusX = 10;
-    drawButton(gfx, btnMinusX, panelY, btnWidth, btnHeight, "-");
-
-    int visorX = btnMinusX + btnWidth + spacing;
-    drawButton(gfx, visorX, panelY, btnWidth, btnHeight, String(octavaActual).c_str());
-
-    int btnPlusX = visorX + btnWidth + spacing;
-    drawButton(gfx, btnPlusX, panelY, btnWidth, btnHeight, "+");
-
-    int btnRecX = btnPlusX + btnWidth + (spacing * 3);
-    drawButton(gfx, btnRecX, panelY, btnWidth, btnHeight, "REC");
-
-    int btnPlayX = btnRecX + btnWidth + spacing;
-    drawButton(gfx, btnPlayX, panelY, btnWidth, btnHeight, "PLAY");
-}
-
-void PianoKeyboard::drawButton(Arduino_RGB_Display* gfx, int x, int y, int w, int h, const char* label) {
-    gfx->drawRect(x, y, w, h, COLOR_WHITE_KEY);
-
-    gfx->setTextSize(3);
-    gfx->setTextColor(COLOR_WHITE_KEY);
-
-    int charCount = strlen(label);
-    int textX = x + (w - (charCount * 6)) / 2;
-    int textY = y + (h - 8) / 2;
-
-    gfx->setCursor(textX, textY);
-    gfx->print(label);
-}

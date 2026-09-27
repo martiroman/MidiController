@@ -23,11 +23,16 @@ void ControlsUI::draw(Arduino_RGB_Display* gfx) {
 }
 
 uint8_t ControlsUI::handleTouch(int tx, int ty) {
-    if (contains(rectRec, tx, ty)) { toggleRec(); return 1; }
-    if (contains(rectPlay, tx, ty)) { togglePlay(); return 1; }
-    if (contains(rectOctDn, tx, ty)) { changeOctave(-1); return 1; }
-    if (contains(rectOctUp, tx, ty)) { changeOctave(+1); return 1; }
+    if (touchActive) return 0; // Ya hay un touch activo
+    if (contains(rectRec, tx, ty))   { touchActive = true; toggleRec(); return 1; }
+    if (contains(rectPlay, tx, ty))  { touchActive = true; togglePlay(); return 1; }
+    if (contains(rectOctDn, tx, ty)) { touchActive = true; changeOctave(-1); return 1; }
+    if (contains(rectOctUp, tx, ty)) { touchActive = true;changeOctave(+1); return 1; }
     return 0;
+}
+
+void ControlsUI::releaseTouch() {
+    touchActive = false;
 }
 
 bool ControlsUI::contains(const Rect& r, int x, int y) {
@@ -89,4 +94,5 @@ void ControlsUI::togglePlay() {
 
 void ControlsUI::changeOctave(int dir) {
     currentOctave = constrain(currentOctave + dir, 1, 8);
+    
 }

@@ -1,11 +1,11 @@
 #include "introScreen.h"
 
-IntroScreen::IntroScreen(){
+IntroScreen::IntroScreen(Arduino_RGB_Display* gfx) : gfx(gfx){
     width  = 800;
     height = 480;
 }
 
-void IntroScreen::draw(Arduino_RGB_Display* gfx) {
+void IntroScreen::draw() {
 // Draw the intro screen graphics here
     gfx->fillScreen(BLACK);
     gfx->setTextSize(5); 

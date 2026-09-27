@@ -5,7 +5,7 @@
 
 using namespace UIConfig;
 
-ScreenPiano::ScreenPiano() {
+ScreenPiano::ScreenPiano(Arduino_RGB_Display* display) : gfx(display) {
     height = SCREEN_HEIGHT;
     width = SCREEN_WIDTH;
     controlsUi = new ControlsUI();
@@ -17,7 +17,7 @@ ScreenPiano::~ScreenPiano() {
     delete keyboard;
 }
 
-void ScreenPiano::draw(Arduino_RGB_Display* gfx) {
+void ScreenPiano::draw() {
     gfx->fillScreen(COLOR_BACKGROUND);
     keyboard->draw(gfx);
     controlsUi->draw(gfx);
@@ -28,11 +28,14 @@ UIEvent ScreenPiano::handleTouch(int tx, int ty) {
 
     if (tx == -1 && ty == -1) {
         event = { EventType::NOTE_OFF, 0, 0 };
+        controlsUi->releaseTouch();
     }
     else {    
         // Check if the touch is within the top control bar area
         if (ty <= BAR_HEIGHT && tx >= 0 && tx <= SCREEN_WIDTH) {
             uint8_t control = controlsUi->handleTouch(tx, ty);        
+            controlsUi->drawOctaveDisplay(gfx);
+            
             //TODO: Implementar eventos de control
 
             //...

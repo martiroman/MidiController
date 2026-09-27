@@ -15,10 +15,12 @@
 
 class IntroScreen : public IUIScreen {
 public:
-    IntroScreen();
-    void draw(Arduino_RGB_Display*);
+    IntroScreen(Arduino_RGB_Display*);
+    void draw();
+    
     // Cualquier toque en el intro equivale a "START"
     static constexpr uint8_t START_PRESSED = 1;
+    Arduino_RGB_Display* gfx = nullptr;
 
     UIEvent handleTouch(int tx, int ty) override {
         return { EventType::START_PRESSED, 0, 0 };

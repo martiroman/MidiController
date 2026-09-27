@@ -7,9 +7,6 @@
 using namespace UIConfig;
 
 UIController::UIController(){
-        introScreen = new IntroScreen();
-        pianoScreen = nullptr;   // se crea en begin(), con el display ya inicializado
-        currentScreen = introScreen;
     }
 
 UIController::~UIController() {
@@ -19,7 +16,7 @@ UIController::~UIController() {
 
 void UIController::drawCurrentScreen(){
     if (currentScreen) {
-        currentScreen->draw(gfx);
+        currentScreen->draw();
     }
 }
 
@@ -58,7 +55,9 @@ void UIController::begin(){
     gfx->begin();
     gfx->fillScreen(BLACK);
 
-    pianoScreen = new ScreenPiano();
+    introScreen = new IntroScreen(gfx);
+    pianoScreen = new ScreenPiano(gfx);
+    currentScreen = introScreen;
     drawCurrentScreen();
 }
 

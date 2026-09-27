@@ -9,10 +9,11 @@ class ScreenPiano : public IUIScreen {
     private:
         ControlsUI* controlsUi;
         PianoKeyboard* keyboard;
+        Arduino_RGB_Display* gfx = nullptr;
     
     public:
-        ScreenPiano();
+        ScreenPiano(Arduino_RGB_Display*);
         ~ScreenPiano();
         UIEvent handleTouch(int, int);
-        void draw(Arduino_RGB_Display*);
+        void draw();
 };

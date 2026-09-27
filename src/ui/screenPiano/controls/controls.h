@@ -29,17 +29,19 @@ public:
     Rect rectOctDn = {300, BAR_Y, 36, BTN_H};
     Rect rectOctUp = {500, BAR_Y, 36, BTN_H};
 
+    void releaseTouch();
     void draw(Arduino_RGB_Display* gfx);
+    void drawOctaveDisplay(Arduino_RGB_Display* gfx);
     uint8_t handleTouch(int tx, int ty);
 
 private:
+    bool touchActive = false;
     bool contains(const Rect& r, int x, int y);
     void drawPixelButton(Arduino_RGB_Display* gfx,
                          const Rect& r,
                          const char* label,
                          uint16_t faceColor,
                          uint16_t shadowColor);
-    void drawOctaveDisplay(Arduino_RGB_Display* gfx);
     void toggleRec();
     void togglePlay();
     void changeOctave(int dir);
